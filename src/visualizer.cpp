@@ -1,4 +1,4 @@
-#include <pose_graph_visualizer/visualizer.h>
+#include <pose_graph_tools/visualizer.h>
 
 Visualizer::Visualizer() {
 	ROS_INFO("Initializing pose graph visualizer");
@@ -7,7 +7,7 @@ Visualizer::Visualizer() {
 	nh_.getParam("frame_id", frame_id_);
 
 	// start subscribers
-  pose_graph_sub_ = nh_.subscribe<pose_graph_visualizer::PoseGraph>(
+  pose_graph_sub_ = nh_.subscribe<pose_graph_tools::PoseGraph>(
       "graph", 10, &Visualizer::PoseGraphCallback, this);
 
   // start publishers
@@ -22,9 +22,9 @@ Visualizer::Visualizer() {
 }
 
 void Visualizer::PoseGraphCallback(
-		const pose_graph_visualizer::PoseGraph::ConstPtr& msg) {
+		const pose_graph_tools::PoseGraph::ConstPtr& msg) {
 	// iterate through nodes in pose graph
-	for (const pose_graph_visualizer::PoseGraphNode &msg_node : msg->nodes) {
+	for (const pose_graph_tools::PoseGraphNode &msg_node : msg->nodes) {
     // tf::Pose pose;
     // tf::poseMsgToTF(msg_node.pose, pose);
 
@@ -38,11 +38,11 @@ void Visualizer::PoseGraphCallback(
   }
 
   // iterate through edges in pose graph
-  for (const pose_graph_visualizer::PoseGraphEdge &msg_edge : msg->edges) {
-    if (msg_edge.type == pose_graph_visualizer::PoseGraphEdge::ODOM) {
+  for (const pose_graph_tools::PoseGraphEdge &msg_edge : msg->edges) {
+    if (msg_edge.type == pose_graph_tools::PoseGraphEdge::ODOM) {
       odometry_edges_.emplace_back(
           std::make_pair(msg_edge.key_from, msg_edge.key_to));
-    } else if (msg_edge.type == pose_graph_visualizer::PoseGraphEdge::LOOPCLOSE) {
+    } else if (msg_edge.type == pose_graph_tools::PoseGraphEdge::LOOPCLOSE) {
       loop_edges_.emplace_back(
           std::make_pair(msg_edge.key_from, msg_edge.key_to));
     }

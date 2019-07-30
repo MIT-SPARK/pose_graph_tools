@@ -11,9 +11,9 @@
 
 #include <tf/transform_datatypes.h>
 
-#include <pose_graph_visualizer/PoseGraph.h>
-#include <pose_graph_visualizer/PoseGraphEdge.h>
-#include <pose_graph_visualizer/PoseGraphNode.h>
+#include <pose_graph_tools/PoseGraph.h>
+#include <pose_graph_tools/PoseGraphEdge.h>
+#include <pose_graph_tools/PoseGraphNode.h>
 
 #include <unordered_map>
 #include <map>
@@ -26,7 +26,7 @@ public:
 	void visualize();
 
 private:
-	void PoseGraphCallback(const pose_graph_visualizer::PoseGraph::ConstPtr& msg);
+	void PoseGraphCallback(const pose_graph_tools::PoseGraph::ConstPtr& msg);
 
 	geometry_msgs::Point getPositionFromKey(long unsigned int key) const;
 

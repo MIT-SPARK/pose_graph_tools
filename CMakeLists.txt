@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(pose_graph_visualizer)
+project(pose_graph_tools)
 
 add_compile_options(-std=c++11)
 
@@ -74,7 +74,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES pose_graph_visualizer
+ LIBRARIES pose_graph_tools
  CATKIN_DEPENDS
  	message_runtime
  	geometry_msgs
@@ -105,7 +105,7 @@ add_library(${PROJECT_NAME}
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/pose_graph_visualizer_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/pose_graph_tools_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
