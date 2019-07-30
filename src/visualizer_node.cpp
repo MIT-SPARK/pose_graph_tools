@@ -7,8 +7,11 @@ int main(int argc, char *argv[]) {
   ros::NodeHandle nh;
   Visualizer viz(nh);
 
+  ros::Rate rate(30);
   while (nh.ok()) {
   	// publish
+  	viz.visualize();
+  	rate.sleep();
   }
 
 }
