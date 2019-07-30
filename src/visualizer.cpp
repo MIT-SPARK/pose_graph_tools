@@ -1,23 +1,23 @@
 #include <pose_graph_tools/visualizer.h>
 
-Visualizer::Visualizer() {
+Visualizer::Visualizer(ros::NodeHandle& nh) {
 	ROS_INFO("Initializing pose graph visualizer");
 
 	// get parameters
-	nh_.getParam("frame_id", frame_id_);
+	nh.getParam("frame_id", frame_id_);
 
 	// start subscribers
-  pose_graph_sub_ = nh_.subscribe<pose_graph_tools::PoseGraph>(
+  pose_graph_sub_ = nh.subscribe<pose_graph_tools::PoseGraph>(
       "graph", 10, &Visualizer::PoseGraphCallback, this);
 
   // start publishers
-  odometry_edge_pub_ = nh_.advertise<visualization_msgs::Marker>(
+  odometry_edge_pub_ = nh.advertise<visualization_msgs::Marker>(
   		"odometry_edges", 10, false);
-  loop_edge_pub_ = nh_.advertise<visualization_msgs::Marker>(
+  loop_edge_pub_ = nh.advertise<visualization_msgs::Marker>(
   		"loop_edges", 10, false);
-  graph_node_pub_ = nh_.advertise<visualization_msgs::Marker>(
+  graph_node_pub_ = nh.advertise<visualization_msgs::Marker>(
   		"graph_nodes", 10, false);
-  graph_node_id_pub_ = nh_.advertise<visualization_msgs::Marker>(
+  graph_node_id_pub_ = nh.advertise<visualization_msgs::Marker>(
   		"graph_nodes_ids", 10, false);
 }
 

@@ -21,7 +21,7 @@
 
 class Visualizer {
 public:
-	Visualizer();
+	Visualizer(ros::NodeHandle& nh);
 
 	void visualize();
 
@@ -31,7 +31,6 @@ private:
 	geometry_msgs::Point getPositionFromKey(long unsigned int key) const;
 
 private:
-	ros::NodeHandle nh_;
 	std::string frame_id_;
 
 	// subscribers
