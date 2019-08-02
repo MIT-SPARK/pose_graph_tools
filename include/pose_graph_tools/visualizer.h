@@ -4,20 +4,12 @@
 #include <ros/ros.h>
 
 #include <geometry_msgs/Point.h>
-#include <std_msgs/Bool.h>
-#include <std_msgs/Empty.h>
-#include <std_msgs/Bool.h>
-#include <visualization_msgs/Marker.h>
 
 #include <tf/transform_datatypes.h>
 
 #include <pose_graph_tools/PoseGraph.h>
-#include <pose_graph_tools/PoseGraphEdge.h>
-#include <pose_graph_tools/PoseGraphNode.h>
 
 #include <unordered_map>
-#include <map>
-#include <vector>
 
 class Visualizer {
 public:

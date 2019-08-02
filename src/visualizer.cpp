@@ -1,4 +1,7 @@
 #include <pose_graph_tools/visualizer.h>
+#include <visualization_msgs/Marker.h>
+#include <pose_graph_tools/PoseGraphEdge.h>
+#include <pose_graph_tools/PoseGraphNode.h>
 
 Visualizer::Visualizer(ros::NodeHandle& nh) {
 	ROS_INFO("Initializing pose graph visualizer");
