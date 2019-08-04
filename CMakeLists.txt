@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   tf_conversions
+  interactive_markers
+  visualization_msgs
 )
 
 ################################################
@@ -80,6 +82,8 @@ catkin_package(
  	geometry_msgs
  	roscpp
  	std_msgs
+  interactive_markers
+  visualization_msgs
 )
 
 ###########

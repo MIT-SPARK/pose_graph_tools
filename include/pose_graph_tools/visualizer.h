@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 
 #include <geometry_msgs/Point.h>
+#include <interactive_markers/interactive_marker_server.h>
 
 #include <tf/transform_datatypes.h>
 
@@ -22,6 +23,8 @@ private:
 
 	geometry_msgs::Point getPositionFromKey(long unsigned int key) const;
 
+	void MakeMenuMarker(const tf::Pose &position, const std::string &id_number);
+
 private:
 	std::string frame_id_;
 
@@ -38,6 +41,8 @@ private:
 	std::vector<Edge> odometry_edges_;
   std::vector<Edge> loop_edges_;
   std::unordered_map<long unsigned int, tf::Pose> keyed_poses_;
+
+  std::shared_ptr<interactive_markers::InteractiveMarkerServer> interactive_mrkr_srvr_;
 };
 
 #endif

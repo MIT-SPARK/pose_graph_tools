@@ -2,6 +2,7 @@
 #include <visualization_msgs/Marker.h>
 #include <pose_graph_tools/PoseGraphEdge.h>
 #include <pose_graph_tools/PoseGraphNode.h>
+#include <interactive_markers/menu_handler.h>
 
 Visualizer::Visualizer(ros::NodeHandle& nh) {
 	ROS_INFO("Initializing pose graph visualizer");
@@ -22,6 +23,9 @@ Visualizer::Visualizer(ros::NodeHandle& nh) {
   		"graph_nodes", 10, false);
   graph_node_id_pub_ = nh.advertise<visualization_msgs::Marker>(
   		"graph_nodes_ids", 10, false);
+
+  interactive_mrkr_srvr_ = std::make_shared<interactive_markers::InteractiveMarkerServer>(
+      "interactive_node", "", false);
 
   ros::spin();
 }
@@ -60,6 +64,40 @@ geometry_msgs::Point Visualizer::getPositionFromKey(
   p.z = v.z();
   return p;
 }
+
+// Interactive Marker Menu to click and see key of node
+void Visualizer::MakeMenuMarker(const tf::Pose &position,
+      const std::string &id_number) {
+  interactive_markers::MenuHandler menu_handler;
+
+  visualization_msgs::InteractiveMarker int_marker;
+  int_marker.header.frame_id = frame_id_;
+  int_marker.scale = 1.0;
+  tf::poseTFToMsg(position, int_marker.pose);
+  int_marker.name = id_number;
+
+  visualization_msgs::Marker marker;
+  marker.type = visualization_msgs::Marker::SPHERE;
+  marker.scale.x = 0.3;
+  marker.scale.y = 0.3;
+  marker.scale.z = 0.3;
+  marker.color.r = 0.0;
+  marker.color.g = 1.0;
+  marker.color.b = 1.0;
+  marker.color.a = 0.5;
+
+  visualization_msgs::InteractiveMarkerControl control;
+  control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MENU;
+  control.name = id_number;
+  control.markers.push_back(marker);
+  control.always_visible = true;
+  int_marker.controls.push_back(control);
+
+  menu_handler.insert(id_number);
+  interactive_mrkr_srvr_->insert(int_marker);
+  menu_handler.apply(*interactive_mrkr_srvr_, int_marker.name);
+}
+
 
 void Visualizer::visualize() {
 	// Publish odometry edges.
@@ -132,6 +170,15 @@ void Visualizer::visualize() {
       m.text = std::to_string(keyedPose.first);
       m.id = id_base + keyedPose.first;
       graph_node_id_pub_.publish(m);
+    }
+
+    // publish the interactive click-and-see key markers
+    for (const auto &keyedPose : keyed_poses_) {
+      std::string robot_id = std::to_string(keyedPose.first);
+      MakeMenuMarker(keyedPose.second, robot_id);
+    }
+    if (interactive_mrkr_srvr_ != nullptr) {
+      interactive_mrkr_srvr_->applyChanges();
     }
   }
 
