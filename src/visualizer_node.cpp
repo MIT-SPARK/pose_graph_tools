@@ -4,14 +4,7 @@
 
 int main(int argc, char *argv[]) {
   // Initiallize visualizer
+  ros::init(argc, argv, "visualizer");
   ros::NodeHandle nh;
   Visualizer viz(nh);
-
-  ros::Rate rate(30);
-  while (nh.ok()) {
-  	// publish
-  	viz.visualize();
-  	rate.sleep();
-  }
-
 }

@@ -7,7 +7,7 @@ Visualizer::Visualizer(ros::NodeHandle& nh) {
 	ROS_INFO("Initializing pose graph visualizer");
 
 	// get parameters
-	nh.getParam("frame_id", frame_id_);
+  nh.param<std::string>("frame_id", frame_id_, "map");
 
 	// start subscribers
   pose_graph_sub_ = nh.subscribe<pose_graph_tools::PoseGraph>(
@@ -22,22 +22,19 @@ Visualizer::Visualizer(ros::NodeHandle& nh) {
   		"graph_nodes", 10, false);
   graph_node_id_pub_ = nh.advertise<visualization_msgs::Marker>(
   		"graph_nodes_ids", 10, false);
+
+  ros::spin();
 }
 
 void Visualizer::PoseGraphCallback(
 		const pose_graph_tools::PoseGraph::ConstPtr& msg) {
 	// iterate through nodes in pose graph
 	for (const pose_graph_tools::PoseGraphNode &msg_node : msg->nodes) {
-    // tf::Pose pose;
-    // tf::poseMsgToTF(msg_node.pose, pose);
+    tf::Pose pose;
+    tf::poseMsgToTF(msg_node.pose, pose);
 
-    // // Fill pose nodes (representing the robot position)
-    // keyed_poses_[msg_node.key] = pose;
-
-    // keyed_stamps_.insert(std::pair<long unsigned int, ros::Time>(
-    //     msg_node.key, msg_node.header.stamp));
-    // stamps_keyed_.insert(std::pair<double, long unsigned int>(
-    //     msg_node.header.stamp.toSec(), msg_node.key));
+    // Fill pose nodes (representing the robot position)
+    keyed_poses_[msg_node.key] = pose;
   }
 
   // iterate through edges in pose graph
@@ -50,6 +47,8 @@ void Visualizer::PoseGraphCallback(
           std::make_pair(msg_edge.key_from, msg_edge.key_to));
     }
   }
+
+  visualize();
 }
 
 geometry_msgs::Point Visualizer::getPositionFromKey(
