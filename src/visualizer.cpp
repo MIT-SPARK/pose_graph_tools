@@ -160,7 +160,7 @@ void Visualizer::visualize() {
     m.color.g = 1.0;
     m.color.b = 0.2;
     m.color.a = 0.8;
-    m.scale.z = 0.02; // Only Scale z is used - height of capital A in the text
+    m.scale.z = 0.01; // Only Scale z is used - height of capital A in the text
 
     int id_base = 100;
     int counter = 0;
@@ -194,9 +194,9 @@ void Visualizer::visualize() {
     m.color.g = 1.0;
     m.color.b = 0.3;
     m.color.a = 0.8;
-    m.scale.x = 0.25;
-    m.scale.y = 0.25;
-    m.scale.z = 0.25;
+    m.scale.x = 0.05;
+    m.scale.y = 0.05;
+    m.scale.z = 0.05;
 
     for (const auto &keyedPose : keyed_poses_) {
       m.points.push_back(getPositionFromKey(keyedPose.first));
