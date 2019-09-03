@@ -19,6 +19,9 @@ Visualizer::Visualizer(ros::NodeHandle& nh) {
   		"odometry_edges", 10, false);
   loop_edge_pub_ = nh.advertise<visualization_msgs::Marker>(
   		"loop_edges", 10, false);
+  rejected_loop_edge_pub_ = nh.advertise<visualization_msgs::Marker>(
+      "rejected_loop_edges", 10, false);
+
   graph_node_pub_ = nh.advertise<visualization_msgs::Marker>(
   		"graph_nodes", 10, false);
   graph_node_id_pub_ = nh.advertise<visualization_msgs::Marker>(
@@ -48,6 +51,9 @@ void Visualizer::PoseGraphCallback(
           std::make_pair(msg_edge.key_from, msg_edge.key_to));
     } else if (msg_edge.type == pose_graph_tools::PoseGraphEdge::LOOPCLOSE) {
       loop_edges_.emplace_back(
+          std::make_pair(msg_edge.key_from, msg_edge.key_to));
+    } else if (msg_edge.type == pose_graph_tools::PoseGraphEdge::REJECTED_LOOPCLOSE) {
+      rejected_loop_edges_.emplace_back(
           std::make_pair(msg_edge.key_from, msg_edge.key_to));
     }
   }
@@ -146,6 +152,30 @@ void Visualizer::visualize() {
       m.points.push_back(getPositionFromKey(key2));
     }
     loop_edge_pub_.publish(m);
+  }
+
+  // Publish the rejected loop closure edges
+  if (rejected_loop_edge_pub_.getNumSubscribers() > 0) {
+    visualization_msgs::Marker m;
+    m.header.frame_id = frame_id_;
+    m.ns = frame_id_;
+    m.id = 1;
+    m.action = visualization_msgs::Marker::ADD;
+    m.type = visualization_msgs::Marker::LINE_LIST;
+    m.color.r = 0.5;
+    m.color.g = 0.5;
+    m.color.b = 0.5;
+    m.color.a = 0.7;
+    m.scale.x = 0.02;
+
+    for (size_t ii = 0; ii < rejected_loop_edges_.size(); ++ii) {
+      const auto key1 = rejected_loop_edges_[ii].first;
+      const auto key2 = rejected_loop_edges_[ii].second;
+
+      m.points.push_back(getPositionFromKey(key1));
+      m.points.push_back(getPositionFromKey(key2));
+    }
+    rejected_loop_edge_pub_.publish(m);
   }
 
   // Publish node IDs in the pose graph.
