@@ -34,12 +34,14 @@ private:
 	// publishers
 	ros::Publisher odometry_edge_pub_;
   ros::Publisher loop_edge_pub_;
+  ros::Publisher rejected_loop_edge_pub_;
   ros::Publisher graph_node_pub_;
   ros::Publisher graph_node_id_pub_;
 
 	typedef std::pair<long unsigned int, long unsigned int> Edge;
 	std::vector<Edge> odometry_edges_;
   std::vector<Edge> loop_edges_;
+  std::vector<Edge> rejected_loop_edges_;
   std::unordered_map<long unsigned int, tf::Pose> keyed_poses_;
 
   std::shared_ptr<interactive_markers::InteractiveMarkerServer> interactive_mrkr_srvr_;
