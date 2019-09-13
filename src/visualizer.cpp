@@ -8,7 +8,9 @@ Visualizer::Visualizer(ros::NodeHandle& nh) {
 	ROS_INFO("Initializing pose graph visualizer");
 
 	// get parameters
-  nh.param<std::string>("frame_id", frame_id_, "map");
+  if (!nh.getParam("/frame_id", frame_id_)) {
+    ROS_ERROR("Did not load frame id");
+  }
 
 	// start subscribers
   pose_graph_sub_ = nh.subscribe<pose_graph_tools::PoseGraph>(
