@@ -13,3 +13,6 @@ cs_add_executable(visualizer_node
   src/visualizer_node.cpp
   src/visualizer.cpp
 )
+
+cs_install()
+cs_export()
