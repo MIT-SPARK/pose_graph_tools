@@ -4,7 +4,7 @@
   <param name="frame_id" value="$(arg frame)"/>
   <!-- visualizer node -->
   <node name="posegraph_viewer" pkg="pose_graph_tools" type="visualizer_node"
-        output="screen" ns="/sparkvio">
+        output="screen" >
     <remap from="graph"       to="$(arg graph_topic)" />
   </node>
 
