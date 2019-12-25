@@ -93,6 +93,7 @@ void Visualizer::MakeMenuMarker(const tf::Pose &position,
   marker.color.g = 1.0;
   marker.color.b = 1.0;
   marker.color.a = 0.5;
+  marker.pose.orientation.w = 1.0;
 
   visualization_msgs::InteractiveMarkerControl control;
   control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MENU;
@@ -121,6 +122,7 @@ void Visualizer::visualize() {
     m.color.b = 0.0;
     m.color.a = 0.8;
     m.scale.x = 0.02;
+    m.pose.orientation.w = 1.0;
 
     for (size_t ii = 0; ii < odometry_edges_.size(); ++ii) {
       const auto key1 = odometry_edges_[ii].first;
@@ -145,6 +147,7 @@ void Visualizer::visualize() {
     m.color.b = 1.0;
     m.color.a = 0.8;
     m.scale.x = 0.02;
+    m.pose.orientation.w = 1.0;
 
     for (size_t ii = 0; ii < loop_edges_.size(); ++ii) {
       const auto key1 = loop_edges_[ii].first;
@@ -169,6 +172,7 @@ void Visualizer::visualize() {
     m.color.b = 0.5;
     m.color.a = 0.7;
     m.scale.x = 0.02;
+    m.pose.orientation.w = 1.0;
 
     for (size_t ii = 0; ii < rejected_loop_edges_.size(); ++ii) {
       const auto key1 = rejected_loop_edges_[ii].first;
@@ -193,6 +197,7 @@ void Visualizer::visualize() {
     m.color.b = 0.2;
     m.color.a = 0.8;
     m.scale.z = 0.01; // Only Scale z is used - height of capital A in the text
+    m.pose.orientation.w = 1.0;
 
     int id_base = 100;
     int counter = 0;
@@ -229,6 +234,7 @@ void Visualizer::visualize() {
     m.scale.x = 0.05;
     m.scale.y = 0.05;
     m.scale.z = 0.05;
+    m.pose.orientation.w = 1.0;
 
     for (const auto &keyedPose : keyed_poses_) {
       m.points.push_back(getPositionFromKey(keyedPose.first));
