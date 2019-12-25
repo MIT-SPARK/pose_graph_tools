@@ -1,7 +1,7 @@
 <launch>
   <arg name="frame" default="map" />
   <arg name="graph_topic" default="graph"/>
-  <arg name="ns"/>
+  <arg name="ns" default="/pose_graph"/>
 
   <param name="frame_id" value="$(arg frame)"/>
   <!-- visualizer node -->
