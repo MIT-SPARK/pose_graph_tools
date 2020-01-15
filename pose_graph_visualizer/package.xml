@@ -1,21 +1,23 @@
 <?xml version="1.0"?>
-<package format="2">
-  <name>pose_graph_tools</name>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>pose_graph_visualizer</name>
   <version>1.0.0</version>
-  <description>The pose_graph_tools package</description>
+  <description>The pose_graph_visualizer package</description>
 
   <maintainer email="yunchang@mit.edu">Yun Chang</maintainer>
 
   <license>BSD</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <buildtool_depend>catkin_simple</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>roscpp</depend>
-  <depend>message_generation</depend>
-  <depend>message_runtime</depend>
-  <depend>std_msgs</depend>
+  <depend>rclcpp</depend>
   <depend>geometry_msgs</depend>
   <depend>visualization_msgs</depend>
+  <depend>pose_graph_msgs</depend>
   <depend>interactive_markers</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>
