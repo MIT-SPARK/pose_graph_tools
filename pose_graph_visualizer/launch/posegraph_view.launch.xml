@@ -4,7 +4,7 @@
   <arg name="ns"          default="/pose_graph"/>
 
   <!-- visualizer node -->
-  <node name="posegraph_viewer" pkg="pose_graph_tools" type="visualizer_node"
+  <node name="posegraph_viewer" pkg="pose_graph_visualizer" exec="visualizer_node"
     output="screen" ns="$(arg ns)">
     <remap from="graph"       to="$(arg graph_topic)" />
 
