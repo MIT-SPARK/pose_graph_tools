@@ -1,50 +1,52 @@
 #ifndef VISUALIZER_H
 #define VISUALIZER_H
 
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 
-#include <geometry_msgs/Point.h>
-#include <interactive_markers/interactive_marker_server.h>
+#include "geometry_msgs/msg/point.hpp"
+#include "visualization_msgs/msg/marker.hpp"
 
-#include <tf/transform_datatypes.h>
+#include "interactive_markers/interactive_marker_server.hpp"
 
-#include <pose_graph_tools/PoseGraph.h>
+#include "pose_graph_msgs/msg/pose_graph.hpp"
+#include "pose_graph_msgs/msg/pose_graph_edge.hpp"
+#include "pose_graph_msgs/msg/pose_graph_node.hpp"
 
 #include <unordered_map>
 
-class Visualizer {
+class Visualizer : public rclcpp::Node {
 public:
-	Visualizer(ros::NodeHandle& nh);
+	Visualizer();
 
 	void visualize();
 
 private:
-	void PoseGraphCallback(const pose_graph_tools::PoseGraph::ConstPtr& msg);
+	void PoseGraphCallback(const pose_graph_msgs::msg::PoseGraph::SharedPtr msg);
 
-	geometry_msgs::Point getPositionFromKey(long unsigned int key) const;
+	geometry_msgs::msg::Point getPositionFromKey(long unsigned int key) const;
 
-	void MakeMenuMarker(const tf::Pose &position, const std::string &id_number);
+	 void MakeMenuMarker(const geometry_msgs::msg::Pose &position, const std::string &id_number);
 
 private:
 	std::string frame_id_;
 
 	// subscribers
-	ros::Subscriber pose_graph_sub_;
+	rclcpp::Subscription<pose_graph_msgs::msg::PoseGraph>::SharedPtr pose_graph_sub_;
 
 	// publishers
-	ros::Publisher odometry_edge_pub_;
-  ros::Publisher loop_edge_pub_;
-  ros::Publisher rejected_loop_edge_pub_;
-  ros::Publisher graph_node_pub_;
-  ros::Publisher graph_node_id_pub_;
+	rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr odometry_edge_pub_;
+	rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr loop_edge_pub_;
+	rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr rejected_loop_edge_pub_;
+	rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr graph_node_pub_;
+	rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr graph_node_id_pub_;
 
 	typedef std::pair<long unsigned int, long unsigned int> Edge;
 	std::vector<Edge> odometry_edges_;
-  std::vector<Edge> loop_edges_;
-  std::vector<Edge> rejected_loop_edges_;
-  std::unordered_map<long unsigned int, tf::Pose> keyed_poses_;
+	std::vector<Edge> loop_edges_;
+	std::vector<Edge> rejected_loop_edges_;
+	std::unordered_map<long unsigned int, geometry_msgs::msg::Pose> keyed_poses_;
 
-  std::shared_ptr<interactive_markers::InteractiveMarkerServer> interactive_mrkr_srvr_;
+  	std::shared_ptr<interactive_markers::InteractiveMarkerServer> interactive_mrkr_srvr_;
 };
 
 #endif

@@ -1,91 +1,86 @@
-#include <pose_graph_tools/visualizer.h>
-#include <visualization_msgs/Marker.h>
-#include <pose_graph_tools/PoseGraphEdge.h>
-#include <pose_graph_tools/PoseGraphNode.h>
-#include <interactive_markers/menu_handler.h>
+#include "pose_graph_visualizer/visualizer.hpp"
+#include "interactive_markers/menu_handler.hpp"
 
-Visualizer::Visualizer(ros::NodeHandle& nh) {
-	ROS_INFO("Initializing pose graph visualizer");
+using std::placeholders::_1;
+
+Visualizer::Visualizer()
+  : Node("visualizer")
+  {
+  RCLCPP_INFO(this->get_logger(), "Initializing pose graph visualizer");
 
 	// get parameters
-  if (!nh.getParam("frame_id", frame_id_)) {
-    ROS_ERROR("Did not load frame id");
+  if (!this->get_parameter("frame_id", frame_id_)) {
+    RCLCPP_ERROR(this->get_logger(), "Did not load frame id");
   }
 
 	// start subscribers
-  pose_graph_sub_ = nh.subscribe<pose_graph_tools::PoseGraph>(
-      "graph", 10, &Visualizer::PoseGraphCallback, this);
+  pose_graph_sub_ = this->create_subscription<pose_graph_msgs::msg::PoseGraph>(
+    "graph", 10, std::bind(&Visualizer::PoseGraphCallback, this, _1));
 
   // start publishers
-  odometry_edge_pub_ = nh.advertise<visualization_msgs::Marker>(
-  		"odometry_edges", 10, false);
-  loop_edge_pub_ = nh.advertise<visualization_msgs::Marker>(
-  		"loop_edges", 10, false);
-  rejected_loop_edge_pub_ = nh.advertise<visualization_msgs::Marker>(
-      "rejected_loop_edges", 10, false);
+  odometry_edge_pub_ = this->create_publisher<visualization_msgs::msg::Marker>(
+  		"odometry_edges", 10);
+  loop_edge_pub_ = this->create_publisher<visualization_msgs::msg::Marker>(
+  		"loop_edges", 10);
+  rejected_loop_edge_pub_ = this->create_publisher<visualization_msgs::msg::Marker>(
+      "rejected_loop_edges", 10);
 
-  graph_node_pub_ = nh.advertise<visualization_msgs::Marker>(
-  		"graph_nodes", 10, false);
-  graph_node_id_pub_ = nh.advertise<visualization_msgs::Marker>(
-  		"graph_nodes_ids", 10, false);
+  graph_node_pub_ = this->create_publisher<visualization_msgs::msg::Marker>(
+  		"graph_nodes", 10);
+  graph_node_id_pub_ = this->create_publisher<visualization_msgs::msg::Marker>(
+  		"graph_nodes_ids", 10);
 
   interactive_mrkr_srvr_ = std::make_shared<interactive_markers::InteractiveMarkerServer>(
-      "interactive_node", "", false);
-
-  ros::spin();
+      "interactive_node", this);
 }
 
-void Visualizer::PoseGraphCallback(
-		const pose_graph_tools::PoseGraph::ConstPtr& msg) {
-	// iterate through nodes in pose graph
-	for (const pose_graph_tools::PoseGraphNode &msg_node : msg->nodes) {
-    tf::Pose pose;
-    tf::poseMsgToTF(msg_node.pose, pose);
+void Visualizer::PoseGraphCallback(const pose_graph_msgs::msg::PoseGraph::SharedPtr msg) {
+	 // iterate through nodes in pose graph
+	 for (const pose_graph_msgs::msg::PoseGraphNode &msg_node : msg->nodes) {
+     // Fill pose nodes (representing the robot position)
+     keyed_poses_[msg_node.key] = msg_node.pose;
+   }
 
-    // Fill pose nodes (representing the robot position)
-    keyed_poses_[msg_node.key] = pose;
-  }
+   // iterate through edges in pose graph
+   for (const pose_graph_msgs::msg::PoseGraphEdge &msg_edge : msg->edges) {
+     if (msg_edge.type == pose_graph_msgs::msg::PoseGraphEdge::ODOM) {
+       odometry_edges_.emplace_back(
+           std::make_pair(msg_edge.key_from, msg_edge.key_to));
+     } else if (msg_edge.type == pose_graph_msgs::msg::PoseGraphEdge::LOOPCLOSE) {
+       loop_edges_.emplace_back(
+           std::make_pair(msg_edge.key_from, msg_edge.key_to));
+     } else if (msg_edge.type == pose_graph_msgs::msg::PoseGraphEdge::REJECTED_LOOPCLOSE) {
+       rejected_loop_edges_.emplace_back(
+           std::make_pair(msg_edge.key_from, msg_edge.key_to));
+     }
+   }
 
-  // iterate through edges in pose graph
-  for (const pose_graph_tools::PoseGraphEdge &msg_edge : msg->edges) {
-    if (msg_edge.type == pose_graph_tools::PoseGraphEdge::ODOM) {
-      odometry_edges_.emplace_back(
-          std::make_pair(msg_edge.key_from, msg_edge.key_to));
-    } else if (msg_edge.type == pose_graph_tools::PoseGraphEdge::LOOPCLOSE) {
-      loop_edges_.emplace_back(
-          std::make_pair(msg_edge.key_from, msg_edge.key_to));
-    } else if (msg_edge.type == pose_graph_tools::PoseGraphEdge::REJECTED_LOOPCLOSE) {
-      rejected_loop_edges_.emplace_back(
-          std::make_pair(msg_edge.key_from, msg_edge.key_to));
-    }
-  }
-
-  visualize();
+   visualize();
 }
 
-geometry_msgs::Point Visualizer::getPositionFromKey(
+geometry_msgs::msg::Point Visualizer::getPositionFromKey(
 		long unsigned int key) const {
-	tf::Vector3 v = keyed_poses_.at(key).getOrigin();
-	geometry_msgs::Point p;
-  p.x = v.x();
-  p.y = v.y();
-  p.z = v.z();
+  auto v = keyed_poses_.at(key);
+  geometry_msgs::msg::Point p;
+  p.x = v.position.x;
+  p.y = v.position.y;
+  p.z = v.position.z;
   return p;
 }
 
 // Interactive Marker Menu to click and see key of node
-void Visualizer::MakeMenuMarker(const tf::Pose &position,
+void Visualizer::MakeMenuMarker(const geometry_msgs::msg::Pose &position,
       const std::string &id_number) {
   interactive_markers::MenuHandler menu_handler;
 
-  visualization_msgs::InteractiveMarker int_marker;
+  visualization_msgs::msg::InteractiveMarker int_marker;
   int_marker.header.frame_id = frame_id_;
   int_marker.scale = 1.0;
-  tf::poseTFToMsg(position, int_marker.pose);
+  int_marker.pose = position;
   int_marker.name = id_number;
 
-  visualization_msgs::Marker marker;
-  marker.type = visualization_msgs::Marker::SPHERE;
+  visualization_msgs::msg::Marker marker;
+  marker.type = visualization_msgs::msg::Marker::SPHERE;
   marker.scale.x = 0.3;
   marker.scale.y = 0.3;
   marker.scale.z = 0.3;
@@ -95,8 +90,8 @@ void Visualizer::MakeMenuMarker(const tf::Pose &position,
   marker.color.a = 0.5;
   marker.pose.orientation.w = 1.0;
 
-  visualization_msgs::InteractiveMarkerControl control;
-  control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MENU;
+  visualization_msgs::msg::InteractiveMarkerControl control;
+  control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MENU;
   control.name = id_number;
   control.markers.push_back(marker);
   control.always_visible = true;
@@ -110,13 +105,13 @@ void Visualizer::MakeMenuMarker(const tf::Pose &position,
 
 void Visualizer::visualize() {
 	// Publish odometry edges.
-  if (odometry_edge_pub_.getNumSubscribers() > 0) {
-    visualization_msgs::Marker m;
+  if (odometry_edge_pub_->get_subscription_count() > 0) {
+    visualization_msgs::msg::Marker m;
     m.header.frame_id = frame_id_;
     m.ns = frame_id_;
     m.id = 0;
-    m.action = visualization_msgs::Marker::ADD;
-    m.type = visualization_msgs::Marker::LINE_LIST;
+    m.action = visualization_msgs::msg::Marker::ADD;
+    m.type = visualization_msgs::msg::Marker::LINE_LIST;
     m.color.r = 1.0;
     m.color.g = 0.0;
     m.color.b = 0.0;
@@ -131,17 +126,17 @@ void Visualizer::visualize() {
       m.points.push_back(getPositionFromKey(key1));
       m.points.push_back(getPositionFromKey(key2));
     }
-    odometry_edge_pub_.publish(m);
+    odometry_edge_pub_->publish(m);
   }
 
   // Publish loop closure edges.
-  if (loop_edge_pub_.getNumSubscribers() > 0) {
-    visualization_msgs::Marker m;
+  if (loop_edge_pub_->get_subscription_count() > 0) {
+    visualization_msgs::msg::Marker m;
     m.header.frame_id = frame_id_;
     m.ns = frame_id_;
     m.id = 1;
-    m.action = visualization_msgs::Marker::ADD;
-    m.type = visualization_msgs::Marker::LINE_LIST;
+    m.action = visualization_msgs::msg::Marker::ADD;
+    m.type = visualization_msgs::msg::Marker::LINE_LIST;
     m.color.r = 0.0;
     m.color.g = 0.2;
     m.color.b = 1.0;
@@ -156,17 +151,17 @@ void Visualizer::visualize() {
       m.points.push_back(getPositionFromKey(key1));
       m.points.push_back(getPositionFromKey(key2));
     }
-    loop_edge_pub_.publish(m);
+    loop_edge_pub_->publish(m);
   }
 
   // Publish the rejected loop closure edges
-  if (rejected_loop_edge_pub_.getNumSubscribers() > 0) {
-    visualization_msgs::Marker m;
+  if (rejected_loop_edge_pub_->get_subscription_count() > 0) {
+    visualization_msgs::msg::Marker m;
     m.header.frame_id = frame_id_;
     m.ns = frame_id_;
     m.id = 1;
-    m.action = visualization_msgs::Marker::ADD;
-    m.type = visualization_msgs::Marker::LINE_LIST;
+    m.action = visualization_msgs::msg::Marker::ADD;
+    m.type = visualization_msgs::msg::Marker::LINE_LIST;
     m.color.r = 0.5;
     m.color.g = 0.5;
     m.color.b = 0.5;
@@ -181,17 +176,17 @@ void Visualizer::visualize() {
       m.points.push_back(getPositionFromKey(key1));
       m.points.push_back(getPositionFromKey(key2));
     }
-    rejected_loop_edge_pub_.publish(m);
+    rejected_loop_edge_pub_->publish(m);
   }
 
   // Publish node IDs in the pose graph.
-  if (graph_node_id_pub_.getNumSubscribers() > 0) {
-    visualization_msgs::Marker m;
+  if (graph_node_id_pub_->get_subscription_count() > 0) {
+    visualization_msgs::msg::Marker m;
     m.header.frame_id = frame_id_;
     m.ns = frame_id_;
 
-    m.action = visualization_msgs::Marker::ADD;
-    m.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    m.action = visualization_msgs::msg::Marker::ADD;
+    m.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
     m.color.r = 1.0;
     m.color.g = 1.0;
     m.color.b = 0.2;
@@ -200,13 +195,12 @@ void Visualizer::visualize() {
     m.pose.orientation.w = 1.0;
 
     int id_base = 100;
-    int counter = 0;
     for (const auto &keyedPose : keyed_poses_) {
-      tf::poseTFToMsg(keyedPose.second, m.pose);
+      m.pose = keyedPose.second;
       // Display text for the node
       m.text = std::to_string(keyedPose.first);
       m.id = id_base + keyedPose.first;
-      graph_node_id_pub_.publish(m);
+      graph_node_id_pub_->publish(m);
     }
 
     // publish the interactive click-and-see key markers
@@ -220,13 +214,13 @@ void Visualizer::visualize() {
   }
 
   // Publish keyframe nodes in the pose graph.
-  if (graph_node_pub_.getNumSubscribers() > 0) {
-    visualization_msgs::Marker m;
+  if (graph_node_pub_->get_subscription_count() > 0) {
+    visualization_msgs::msg::Marker m;
     m.header.frame_id = frame_id_;
     m.ns = frame_id_;
     m.id = 4;
-    m.action = visualization_msgs::Marker::ADD;
-    m.type = visualization_msgs::Marker::SPHERE_LIST;
+    m.action = visualization_msgs::msg::Marker::ADD;
+    m.type = visualization_msgs::msg::Marker::SPHERE_LIST;
     m.color.r = 0.0;
     m.color.g = 1.0;
     m.color.b = 0.3;
@@ -239,6 +233,6 @@ void Visualizer::visualize() {
     for (const auto &keyedPose : keyed_poses_) {
       m.points.push_back(getPositionFromKey(keyedPose.first));
     }
-    graph_node_pub_.publish(m);
+    graph_node_pub_->publish(m);
   }
 }

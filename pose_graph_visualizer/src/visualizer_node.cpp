@@ -1,10 +1,9 @@
-#include <pose_graph_tools/visualizer.h>
-#include <ros/ros.h>
-#include <ros/console.h>
+#include "pose_graph_visualizer/visualizer.hpp"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv){
   // Initiallize visualizer
-  ros::init(argc, argv, "visualizer");
-  ros::NodeHandle nh;
-  Visualizer viz(nh);
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<Visualizer>());
+  rclcpp::shutdown();
+  return 0;
 }
