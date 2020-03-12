@@ -1,13 +1,13 @@
 <launch>
-  <arg name="frame"       default="map" />
+  <arg name="frame_id"    default="map" />
   <arg name="graph_topic" default="graph"/>
-  <arg name="ns"          default="/pose_graph"/>
+  <arg name="ns"          default="pose_graph"/>
 
   <!-- visualizer node -->
   <node name="posegraph_viewer" pkg="pose_graph_tools" type="visualizer_node"
     output="screen" ns="$(arg ns)">
-    <remap from="graph"       to="$(arg graph_topic)" />
+    <remap from="graph"    to="$(arg graph_topic)" />
 
-    <param name="frame_id" value="$(arg frame)"/>
+    <param name="frame_id" value="$(arg frame_id)"/>
   </node>
 </launch>
