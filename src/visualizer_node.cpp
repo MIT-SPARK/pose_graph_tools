@@ -5,6 +5,6 @@
 int main(int argc, char *argv[]) {
   // Initiallize visualizer
   ros::init(argc, argv, "visualizer");
-  ros::NodeHandle nh;
+  ros::NodeHandle nh("~");
   Visualizer viz(nh);
 }
