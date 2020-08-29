@@ -39,7 +39,7 @@ class Visualizer {
   ros::Publisher graph_node_id_pub_;
 
   typedef std::pair<long unsigned int, long unsigned int> Edge;
-  std::vector<Edge> odometry_edges_;
+  std::map<int, std::vector<Edge> > odometry_edges_;
   std::vector<Edge> loop_edges_;
   std::vector<Edge> rejected_loop_edges_;
   std::unordered_map<long unsigned int, tf::Pose> keyed_poses_;
