@@ -49,7 +49,10 @@ void Visualizer::PoseGraphCallback(
   // iterate through edges in pose graph
   for (const pose_graph_tools::PoseGraphEdge& msg_edge : msg->edges) {
     if (msg_edge.type == pose_graph_tools::PoseGraphEdge::ODOM) {
-      odometry_edges_.emplace_back(
+      // initialize first seen robot id
+      if (odometry_edges_.find(msg_edge.robot_id) == odometry_edges_.end())
+        odometry_edges_[msg_edge.robot_id] = std::vector<Edge>();
+      odometry_edges_[msg_edge.robot_id].emplace_back(
           std::make_pair(msg_edge.key_from, msg_edge.key_to));
     } else if (msg_edge.type == pose_graph_tools::PoseGraphEdge::LOOPCLOSE) {
       loop_edges_.emplace_back(
@@ -111,27 +114,32 @@ void Visualizer::MakeMenuMarker(const tf::Pose& position,
 void Visualizer::visualize() {
   // Publish odometry edges.
   if (odometry_edge_pub_.getNumSubscribers() > 0) {
-    visualization_msgs::Marker m;
-    m.header.frame_id = frame_id_;
-    m.ns = frame_id_;
-    m.id = 0;
-    m.action = visualization_msgs::Marker::ADD;
-    m.type = visualization_msgs::Marker::LINE_LIST;
-    m.color.r = 1.0;
-    m.color.g = 0.0;
-    m.color.b = 0.0;
-    m.color.a = 0.8;
-    m.scale.x = 0.02;
-    m.pose.orientation.w = 1.0;
+    for (auto robot_odom : odometry_edges_) {
+      int robot_id = robot_odom.first;
+      visualization_msgs::Marker m;
+      m.header.frame_id = frame_id_;
+      m.ns = frame_id_;
+      m.id = 0;
+      m.action = visualization_msgs::Marker::ADD;
+      m.type = visualization_msgs::Marker::LINE_LIST;
+      // TODO(Yun) currently the below color formula
+      // means that only support up to 5 robots
+      m.color.r = static_cast<float>(robot_id) / 5;
+      m.color.g = 1 - static_cast<float>(robot_id) / 5;
+      m.color.b = 0.0;
+      m.color.a = 0.8;
+      m.scale.x = 0.02;
+      m.pose.orientation.w = 1.0;
 
-    for (size_t ii = 0; ii < odometry_edges_.size(); ++ii) {
-      const auto key1 = odometry_edges_[ii].first;
-      const auto key2 = odometry_edges_[ii].second;
+      for (size_t ii = 0; ii < robot_odom.second.size(); ++ii) {
+        const auto key1 = robot_odom.second[ii].first;
+        const auto key2 = robot_odom.second[ii].second;
 
-      m.points.push_back(getPositionFromKey(key1));
-      m.points.push_back(getPositionFromKey(key2));
+        m.points.push_back(getPositionFromKey(key1));
+        m.points.push_back(getPositionFromKey(key2));
+      }
+      odometry_edge_pub_.publish(m);
     }
-    odometry_edge_pub_.publish(m);
   }
 
   // Publish loop closure edges.
