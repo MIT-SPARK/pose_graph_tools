@@ -3,7 +3,8 @@ Header header
 uint64 key_from
 uint64 key_to
 
-int32 robot_id
+int32 robot_from
+int32 robot_to
 
 int32 type
 

@@ -50,9 +50,9 @@ void Visualizer::PoseGraphCallback(
   for (const pose_graph_tools::PoseGraphEdge& msg_edge : msg->edges) {
     if (msg_edge.type == pose_graph_tools::PoseGraphEdge::ODOM) {
       // initialize first seen robot id
-      if (odometry_edges_.find(msg_edge.robot_id) == odometry_edges_.end())
-        odometry_edges_[msg_edge.robot_id] = std::vector<Edge>();
-      odometry_edges_[msg_edge.robot_id].emplace_back(
+      if (odometry_edges_.find(msg_edge.robot_from) == odometry_edges_.end())
+        odometry_edges_[msg_edge.robot_from] = std::vector<Edge>();
+      odometry_edges_[msg_edge.robot_from].emplace_back(
           std::make_pair(msg_edge.key_from, msg_edge.key_to));
     } else if (msg_edge.type == pose_graph_tools::PoseGraphEdge::LOOPCLOSE) {
       loop_edges_.emplace_back(
