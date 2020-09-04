@@ -6,7 +6,7 @@
   <!-- visualizer node -->
   <node name="posegraph_viewer" pkg="pose_graph_tools" type="visualizer_node"
     output="screen" ns="$(arg ns)">
-    <remap from="graph"    to="$(arg graph_topic)" />
+    <remap from="~graph"    to="$(arg graph_topic)" />
 
     <param name="frame_id" value="$(arg frame_id)"/>
   </node>
