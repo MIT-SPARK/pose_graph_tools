@@ -9,6 +9,7 @@ catkin_simple()
 
 cs_add_library(${PROJECT_NAME}
   src/visualizer.cpp
+  src/utils.cpp
 )
 
 cs_add_executable(visualizer_node
