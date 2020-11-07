@@ -7,9 +7,6 @@
 Visualizer::Visualizer(const ros::NodeHandle& nh) {
   ROS_INFO("Initializing pose graph visualizer");
 
-  // get parameters
-  assert(nh.getParam("frame_id", frame_id_));
-
   // start subscribers
   ros::NodeHandle nl(nh);
   pose_graph_sub_ = nl.subscribe<pose_graph_tools::PoseGraph>(
@@ -45,6 +42,9 @@ void Visualizer::PoseGraphCallback(
     // Fill pose nodes (representing the robot position)
     keyed_poses_[msg_node.robot_id][msg_node.key] = pose;
   }
+
+  // update frame id
+  frame_id_ = msg->header.frame_id;
 
   // iterate through edges in pose graph
   for (const pose_graph_tools::PoseGraphEdge& msg_edge : msg->edges) {
