@@ -125,15 +125,18 @@ void Visualizer::visualize() {
 
       // TODO(Yun) currently the below color formula
       // means that only support up to 5 robots
-      m.color.r = static_cast<float>(robot_id) / 5;
-      m.color.g = 1 - static_cast<float>(robot_id) / 5;
-      m.color.b = 0.0;
-      m.color.a = 0.8;
+      std_msgs::ColorRGBA color;
+      color.r = static_cast<float>(robot_id) / 5;
+      color.g = 1 - static_cast<float>(robot_id) / 5;
+      color.b = 0.0;
+      color.a = 0.8;
       m.scale.x = 0.02;
       m.pose.orientation.w = 1.0;
 
       m.points.push_back(getPositionFromKey(robot_id, key1));
       m.points.push_back(getPositionFromKey(robot_id, key2));
+      m.colors.push_back(color);
+      m.colors.push_back(color);
     }
     odometry_edge_pub_.publish(m);
   }
