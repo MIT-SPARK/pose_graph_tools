@@ -13,6 +13,7 @@ int32 ODOM      = 0
 int32 LOOPCLOSE = 1
 int32 LANDMARK  = 2
 int32 REJECTED_LOOPCLOSE = 3
+int32 MESH = 4
 
 # Transforms in ede
 geometry_msgs/Pose pose
