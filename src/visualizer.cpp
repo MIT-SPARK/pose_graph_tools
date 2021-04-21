@@ -7,9 +7,6 @@
 Visualizer::Visualizer(const ros::NodeHandle& nh) {
   ROS_INFO("Initializing pose graph visualizer");
 
-  // get parameters
-  assert(nh.getParam("frame_id", frame_id_));
-
   // start subscribers
   ros::NodeHandle nl(nh);
   pose_graph_sub_ = nl.subscribe<pose_graph_tools::PoseGraph>(
@@ -43,21 +40,24 @@ void Visualizer::PoseGraphCallback(
     tf::poseMsgToTF(msg_node.pose, pose);
 
     // Fill pose nodes (representing the robot position)
-    keyed_poses_[msg_node.key] = pose;
+    keyed_poses_[msg_node.robot_id][msg_node.key] = pose;
   }
+
+  // update frame id
+  frame_id_ = msg->header.frame_id;
 
   // iterate through edges in pose graph
   for (const pose_graph_tools::PoseGraphEdge& msg_edge : msg->edges) {
+    Node from = std::make_pair(msg_edge.robot_from, msg_edge.key_from);
+    Node to = std::make_pair(msg_edge.robot_to, msg_edge.key_to);
     if (msg_edge.type == pose_graph_tools::PoseGraphEdge::ODOM) {
-      odometry_edges_.emplace_back(
-          std::make_pair(msg_edge.key_from, msg_edge.key_to));
+      // initialize first seen robot id
+      odometry_edges_.emplace_back(std::make_pair(from, to));
     } else if (msg_edge.type == pose_graph_tools::PoseGraphEdge::LOOPCLOSE) {
-      loop_edges_.emplace_back(
-          std::make_pair(msg_edge.key_from, msg_edge.key_to));
+      loop_edges_.emplace_back(std::make_pair(from, to));
     } else if (msg_edge.type ==
                pose_graph_tools::PoseGraphEdge::REJECTED_LOOPCLOSE) {
-      rejected_loop_edges_.emplace_back(
-          std::make_pair(msg_edge.key_from, msg_edge.key_to));
+      rejected_loop_edges_.emplace_back(std::make_pair(from, to));
     }
   }
 
@@ -65,8 +65,9 @@ void Visualizer::PoseGraphCallback(
 }
 
 geometry_msgs::Point Visualizer::getPositionFromKey(
+    int robot_id,
     long unsigned int key) const {
-  tf::Vector3 v = keyed_poses_.at(key).getOrigin();
+  tf::Vector3 v = keyed_poses_.at(robot_id).at(key).getOrigin();
   geometry_msgs::Point p;
   p.x = v.x();
   p.y = v.y();
@@ -117,19 +118,25 @@ void Visualizer::visualize() {
     m.id = 0;
     m.action = visualization_msgs::Marker::ADD;
     m.type = visualization_msgs::Marker::LINE_LIST;
-    m.color.r = 1.0;
-    m.color.g = 0.0;
-    m.color.b = 0.0;
-    m.color.a = 0.8;
-    m.scale.x = 0.02;
-    m.pose.orientation.w = 1.0;
-
     for (size_t ii = 0; ii < odometry_edges_.size(); ++ii) {
-      const auto key1 = odometry_edges_[ii].first;
-      const auto key2 = odometry_edges_[ii].second;
+      int robot_id = odometry_edges_[ii].first.first;
+      const auto key1 = odometry_edges_[ii].first.second;
+      const auto key2 = odometry_edges_[ii].second.second;
 
-      m.points.push_back(getPositionFromKey(key1));
-      m.points.push_back(getPositionFromKey(key2));
+      // TODO(Yun) currently the below color formula
+      // means that only support up to 5 robots
+      std_msgs::ColorRGBA color;
+      color.r = static_cast<float>(robot_id) / 5;
+      color.g = 1 - static_cast<float>(robot_id) / 5;
+      color.b = 0.0;
+      color.a = 0.8;
+      m.scale.x = 0.02;
+      m.pose.orientation.w = 1.0;
+
+      m.points.push_back(getPositionFromKey(robot_id, key1));
+      m.points.push_back(getPositionFromKey(robot_id, key2));
+      m.colors.push_back(color);
+      m.colors.push_back(color);
     }
     odometry_edge_pub_.publish(m);
   }
@@ -150,11 +157,13 @@ void Visualizer::visualize() {
     m.pose.orientation.w = 1.0;
 
     for (size_t ii = 0; ii < loop_edges_.size(); ++ii) {
-      const auto key1 = loop_edges_[ii].first;
-      const auto key2 = loop_edges_[ii].second;
+      const auto robot1 = loop_edges_[ii].first.first;
+      const auto robot2 = loop_edges_[ii].second.first;
+      const auto key1 = loop_edges_[ii].first.second;
+      const auto key2 = loop_edges_[ii].second.second;
 
-      m.points.push_back(getPositionFromKey(key1));
-      m.points.push_back(getPositionFromKey(key2));
+      m.points.push_back(getPositionFromKey(robot1, key1));
+      m.points.push_back(getPositionFromKey(robot2, key2));
     }
     loop_edge_pub_.publish(m);
   }
@@ -175,11 +184,13 @@ void Visualizer::visualize() {
     m.pose.orientation.w = 1.0;
 
     for (size_t ii = 0; ii < rejected_loop_edges_.size(); ++ii) {
-      const auto key1 = rejected_loop_edges_[ii].first;
-      const auto key2 = rejected_loop_edges_[ii].second;
+      const auto robot1 = rejected_loop_edges_[ii].first.first;
+      const auto robot2 = rejected_loop_edges_[ii].second.first;
+      const auto key1 = rejected_loop_edges_[ii].first.second;
+      const auto key2 = rejected_loop_edges_[ii].second.second;
 
-      m.points.push_back(getPositionFromKey(key1));
-      m.points.push_back(getPositionFromKey(key2));
+      m.points.push_back(getPositionFromKey(robot1, key1));
+      m.points.push_back(getPositionFromKey(robot2, key2));
     }
     rejected_loop_edge_pub_.publish(m);
   }
@@ -201,19 +212,18 @@ void Visualizer::visualize() {
 
     int id_base = 100;
     int counter = 0;
-    for (const auto& keyedPose : keyed_poses_) {
-      tf::poseTFToMsg(keyedPose.second, m.pose);
-      // Display text for the node
-      m.text = std::to_string(keyedPose.first);
-      m.id = id_base + keyedPose.first;
-      graph_node_id_pub_.publish(m);
+    for (const auto& robot : keyed_poses_) {
+      for (const auto& keyedPose : robot.second) {
+        tf::poseTFToMsg(keyedPose.second, m.pose);
+        // Display text for the node
+        std::string robot_id = std::to_string(keyedPose.first);
+        MakeMenuMarker(keyedPose.second, robot_id);
+        m.text = robot_id;
+        m.id = id_base + keyedPose.first;
+        graph_node_id_pub_.publish(m);
+      }
     }
 
-    // publish the interactive click-and-see key markers
-    for (const auto& keyedPose : keyed_poses_) {
-      std::string robot_id = std::to_string(keyedPose.first);
-      MakeMenuMarker(keyedPose.second, robot_id);
-    }
     if (interactive_mrkr_srvr_ != nullptr) {
       interactive_mrkr_srvr_->applyChanges();
     }
@@ -236,8 +246,10 @@ void Visualizer::visualize() {
     m.scale.z = 0.05;
     m.pose.orientation.w = 1.0;
 
-    for (const auto& keyedPose : keyed_poses_) {
-      m.points.push_back(getPositionFromKey(keyedPose.first));
+    for (const auto& robot : keyed_poses_) {
+      for (const auto& keyedPose : robot.second) {
+        m.points.push_back(getPositionFromKey(robot.first, keyedPose.first));
+      }
     }
     graph_node_pub_.publish(m);
   }

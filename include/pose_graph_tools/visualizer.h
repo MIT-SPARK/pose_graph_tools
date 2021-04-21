@@ -21,7 +21,8 @@ class Visualizer {
  private:
   void PoseGraphCallback(const pose_graph_tools::PoseGraph::ConstPtr& msg);
 
-  geometry_msgs::Point getPositionFromKey(long unsigned int key) const;
+  geometry_msgs::Point getPositionFromKey(int robot_id,
+                                          long unsigned int key) const;
 
   void MakeMenuMarker(const tf::Pose& position, const std::string& id_number);
 
@@ -38,11 +39,12 @@ class Visualizer {
   ros::Publisher graph_node_pub_;
   ros::Publisher graph_node_id_pub_;
 
-  typedef std::pair<long unsigned int, long unsigned int> Edge;
+  typedef std::pair<int, long unsigned int> Node;  // robot id, key
+  typedef std::pair<Node, Node> Edge;
   std::vector<Edge> odometry_edges_;
   std::vector<Edge> loop_edges_;
   std::vector<Edge> rejected_loop_edges_;
-  std::unordered_map<long unsigned int, tf::Pose> keyed_poses_;
+  std::map<int, std::map<long unsigned int, tf::Pose> > keyed_poses_;
 
   std::shared_ptr<interactive_markers::InteractiveMarkerServer>
       interactive_mrkr_srvr_;
