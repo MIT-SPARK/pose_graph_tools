@@ -1,4 +1,6 @@
 uint32 robot_id
 uint32 pose_id
+uint32 submap_id
 sensor_msgs/Image descriptors_mat
 sensor_msgs/PointCloud2 keypoints
+geometry_msgs/Pose T_submap_pose
