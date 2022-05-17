@@ -1,3 +1,5 @@
+uint64 query_robot
+uint64 match_robot
 uint64 query
 uint64 match
 ---
