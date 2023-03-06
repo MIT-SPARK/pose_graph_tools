@@ -10,8 +10,9 @@
 #include <fstream>
 
 namespace pose_graph_tools {
-bool savePoseGraphEdgesToFile(const PoseGraph& graph,
-                              const std::string& filename) {
+
+bool savePoseGraphEdgesToFile(const PoseGraph &graph,
+                              const std::string &filename) {
   std::ofstream file;
   file.open(filename);
   if (!file.is_open()) {
@@ -40,7 +41,7 @@ bool savePoseGraphEdgesToFile(const PoseGraph& graph,
   return true;
 }
 
-PoseGraph filterDuplicateEdges(const PoseGraph& graph_in) {
+PoseGraph filterDuplicateEdges(const PoseGraph &graph_in) {
   PoseGraph graph_out;
 
   graph_out.nodes = graph_in.nodes;
@@ -50,7 +51,8 @@ PoseGraph filterDuplicateEdges(const PoseGraph& graph_in) {
     bool skip = false;
     for (size_t j = 0; j < graph_out.edges.size(); ++j) {
       PoseGraphEdge edge = graph_out.edges[j];
-      if (edge.robot_from == edge_in.robot_from && edge.robot_to == edge_in.robot_to && 
+      if (edge.robot_from == edge_in.robot_from &&
+          edge.robot_to == edge_in.robot_to &&
           edge.key_from == edge_in.key_from && edge.key_to == edge_in.key_to) {
         skip = true;
         break;
@@ -63,9 +65,10 @@ PoseGraph filterDuplicateEdges(const PoseGraph& graph_in) {
 
   unsigned int num_edges_in = graph_in.edges.size();
   unsigned int num_edges_out = graph_out.edges.size();
-  printf("Detected and removed %u duplicate edges from pose graph.\n", num_edges_in - num_edges_out);
+  printf("Detected and removed %u duplicate edges from pose graph.\n",
+         num_edges_in - num_edges_out);
 
   return graph_out;
 }
 
-}  // namespace pose_graph_tools
+} // namespace pose_graph_tools
