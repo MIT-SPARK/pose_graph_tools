@@ -63,8 +63,7 @@ void Visualizer::PoseGraphCallback(
   visualize();
 }
 
-geometry_msgs::Point Visualizer::getPositionFromKey(int robot_id,
-                                                    long unsigned int key) const {
+geometry_msgs::Point Visualizer::getPositionFromKey(int robot_id, uint64_t key) const {
   tf::Vector3 v = keyed_poses_.at(robot_id).at(key).getOrigin();
   geometry_msgs::Point p;
   p.x = v.x();

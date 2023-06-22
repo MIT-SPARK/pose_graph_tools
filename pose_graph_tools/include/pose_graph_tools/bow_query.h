@@ -2,9 +2,6 @@
 
 namespace pose_graph_tools {
 
-struct BoWQuery {
-
-    
-};
+struct BoWQuery {};
 
 }  // namespace pose_graph_tools

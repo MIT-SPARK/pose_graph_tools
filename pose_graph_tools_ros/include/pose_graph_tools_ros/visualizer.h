@@ -1,25 +1,28 @@
-#ifndef VISUALIZER_H
-#define VISUALIZER_H
+#pragma once
 
+#include <map>
+#include <memory>
+#include <string>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include <geometry_msgs/Point.h>
 #include <interactive_markers/interactive_marker_server.h>
+#include <pose_graph_tools_msgs/PoseGraph.h>
 #include <ros/ros.h>
 #include <tf/transform_datatypes.h>
 
-#include <pose_graph_tools_msgs/PoseGraph.h>
-
 class Visualizer {
  public:
-  Visualizer(const ros::NodeHandle& nh);
+  explicit Visualizer(const ros::NodeHandle& nh);
 
   void visualize();
 
  private:
   void PoseGraphCallback(const pose_graph_tools_msgs::PoseGraph::ConstPtr& msg);
 
-  geometry_msgs::Point getPositionFromKey(int robot_id, long unsigned int key) const;
+  geometry_msgs::Point getPositionFromKey(int robot_id, uint64_t key) const;
 
   void MakeMenuMarker(const tf::Pose& position, const std::string& id_number);
 
@@ -36,14 +39,12 @@ class Visualizer {
   ros::Publisher graph_node_pub_;
   ros::Publisher graph_node_id_pub_;
 
-  typedef std::pair<int, long unsigned int> Node;  // robot id, key
+  typedef std::pair<int, uint64_t> Node;  // robot id, key
   typedef std::pair<Node, Node> Edge;
   std::vector<Edge> odometry_edges_;
   std::vector<Edge> loop_edges_;
   std::vector<Edge> rejected_loop_edges_;
-  std::map<int, std::map<long unsigned int, tf::Pose> > keyed_poses_;
+  std::map<int, std::map<uint64_t, tf::Pose> > keyed_poses_;
 
   std::shared_ptr<interactive_markers::InteractiveMarkerServer> interactive_mrkr_srvr_;
 };
-
-#endif

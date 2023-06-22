@@ -1,9 +1,11 @@
 #pragma once
 
+#include <string>
+
 #include <pose_graph_tools_msgs/PoseGraph.h>
 
 namespace pose_graph_tools {
-    
+
 bool savePoseGraphEdgesToFile(const pose_graph_tools_msgs::PoseGraph &graph,
                               const std::string &filename);
 
