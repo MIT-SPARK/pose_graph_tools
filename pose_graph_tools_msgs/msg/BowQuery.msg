@@ -1,0 +1,3 @@
+uint32 robot_id
+uint32 pose_id
+pose_graph_tools_msgs/BowVector bow_vector

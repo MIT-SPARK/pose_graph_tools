@@ -1,7 +1,8 @@
+#include "pose_graph_tools_ros/visualizer.h"
+
 #include <interactive_markers/menu_handler.h>
-#include <pose_graph_tools/PoseGraphEdge.h>
-#include <pose_graph_tools/PoseGraphNode.h>
-#include <pose_graph_tools/visualizer.h>
+#include <pose_graph_tools_msgs/PoseGraphEdge.h>
+#include <pose_graph_tools_msgs/PoseGraphNode.h>
 #include <visualization_msgs/Marker.h>
 
 Visualizer::Visualizer(const ros::NodeHandle& nh) {
@@ -9,19 +10,17 @@ Visualizer::Visualizer(const ros::NodeHandle& nh) {
 
   // start subscribers
   ros::NodeHandle nl(nh);
-  pose_graph_sub_ = nl.subscribe<pose_graph_tools::PoseGraph>(
+  pose_graph_sub_ = nl.subscribe<pose_graph_tools_msgs::PoseGraph>(
       "graph", 10, &Visualizer::PoseGraphCallback, this);
 
   // start publishers
   odometry_edge_pub_ =
       nl.advertise<visualization_msgs::Marker>("odometry_edges", 10, false);
-  loop_edge_pub_ =
-      nl.advertise<visualization_msgs::Marker>("loop_edges", 10, false);
-  rejected_loop_edge_pub_ = nl.advertise<visualization_msgs::Marker>(
-      "rejected_loop_edges", 10, false);
+  loop_edge_pub_ = nl.advertise<visualization_msgs::Marker>("loop_edges", 10, false);
+  rejected_loop_edge_pub_ =
+      nl.advertise<visualization_msgs::Marker>("rejected_loop_edges", 10, false);
 
-  graph_node_pub_ =
-      nl.advertise<visualization_msgs::Marker>("graph_nodes", 10, false);
+  graph_node_pub_ = nl.advertise<visualization_msgs::Marker>("graph_nodes", 10, false);
   graph_node_id_pub_ =
       nl.advertise<visualization_msgs::Marker>("graph_nodes_ids", 10, false);
 
@@ -33,9 +32,9 @@ Visualizer::Visualizer(const ros::NodeHandle& nh) {
 }
 
 void Visualizer::PoseGraphCallback(
-    const pose_graph_tools::PoseGraph::ConstPtr& msg) {
+    const pose_graph_tools_msgs::PoseGraph::ConstPtr& msg) {
   // iterate through nodes in pose graph
-  for (const pose_graph_tools::PoseGraphNode& msg_node : msg->nodes) {
+  for (const pose_graph_tools_msgs::PoseGraphNode& msg_node : msg->nodes) {
     tf::Pose pose;
     tf::poseMsgToTF(msg_node.pose, pose);
 
@@ -47,16 +46,16 @@ void Visualizer::PoseGraphCallback(
   frame_id_ = msg->header.frame_id;
 
   // iterate through edges in pose graph
-  for (const pose_graph_tools::PoseGraphEdge& msg_edge : msg->edges) {
+  for (const pose_graph_tools_msgs::PoseGraphEdge& msg_edge : msg->edges) {
     Node from = std::make_pair(msg_edge.robot_from, msg_edge.key_from);
     Node to = std::make_pair(msg_edge.robot_to, msg_edge.key_to);
-    if (msg_edge.type == pose_graph_tools::PoseGraphEdge::ODOM) {
+    if (msg_edge.type == pose_graph_tools_msgs::PoseGraphEdge::ODOM) {
       // initialize first seen robot id
       odometry_edges_.emplace_back(std::make_pair(from, to));
-    } else if (msg_edge.type == pose_graph_tools::PoseGraphEdge::LOOPCLOSE) {
+    } else if (msg_edge.type == pose_graph_tools_msgs::PoseGraphEdge::LOOPCLOSE) {
       loop_edges_.emplace_back(std::make_pair(from, to));
     } else if (msg_edge.type ==
-               pose_graph_tools::PoseGraphEdge::REJECTED_LOOPCLOSE) {
+               pose_graph_tools_msgs::PoseGraphEdge::REJECTED_LOOPCLOSE) {
       rejected_loop_edges_.emplace_back(std::make_pair(from, to));
     }
   }
@@ -64,9 +63,8 @@ void Visualizer::PoseGraphCallback(
   visualize();
 }
 
-geometry_msgs::Point Visualizer::getPositionFromKey(
-    int robot_id,
-    long unsigned int key) const {
+geometry_msgs::Point Visualizer::getPositionFromKey(int robot_id,
+                                                    long unsigned int key) const {
   tf::Vector3 v = keyed_poses_.at(robot_id).at(key).getOrigin();
   geometry_msgs::Point p;
   p.x = v.x();

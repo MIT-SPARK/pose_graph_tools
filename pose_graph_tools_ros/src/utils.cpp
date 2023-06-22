@@ -1,17 +1,12 @@
-/*
- * Copyright Notes
- *
- * Authors: Yulun Tian (yulun@mit.edu)
- */
-
-#include <pose_graph_tools/utils.h>
-#include <ros/console.h>
+#include "pose_graph_tools_ros/utils.h"
 
 #include <fstream>
 
+#include <ros/console.h>
+
 namespace pose_graph_tools {
 
-bool savePoseGraphEdgesToFile(const PoseGraph &graph,
+bool savePoseGraphEdgesToFile(const pose_graph_tools_msgs::PoseGraph &graph,
                               const std::string &filename) {
   std::ofstream file;
   file.open(filename);
@@ -22,7 +17,7 @@ bool savePoseGraphEdgesToFile(const PoseGraph &graph,
 
   file << "robot_from,key_from,robot_to,key_to,qx,qy,qz,qw,tx,ty,tz\n";
   for (size_t i = 0; i < graph.edges.size(); ++i) {
-    PoseGraphEdge edge = graph.edges[i];
+    pose_graph_tools_msgs::PoseGraphEdge edge = graph.edges[i];
     geometry_msgs::Point position = edge.pose.position;
     geometry_msgs::Quaternion orientation = edge.pose.orientation;
     file << edge.robot_from << ",";
@@ -41,18 +36,18 @@ bool savePoseGraphEdgesToFile(const PoseGraph &graph,
   return true;
 }
 
-PoseGraph filterDuplicateEdges(const PoseGraph &graph_in) {
-  PoseGraph graph_out;
+pose_graph_tools_msgs::PoseGraph filterDuplicateEdges(
+    const pose_graph_tools_msgs::PoseGraph &graph_in) {
+  pose_graph_tools_msgs::PoseGraph graph_out;
 
   graph_out.nodes = graph_in.nodes;
 
   for (size_t i = 0; i < graph_in.edges.size(); ++i) {
-    PoseGraphEdge edge_in = graph_in.edges[i];
+    pose_graph_tools_msgs::PoseGraphEdge edge_in = graph_in.edges[i];
     bool skip = false;
     for (size_t j = 0; j < graph_out.edges.size(); ++j) {
-      PoseGraphEdge edge = graph_out.edges[j];
-      if (edge.robot_from == edge_in.robot_from &&
-          edge.robot_to == edge_in.robot_to &&
+      pose_graph_tools_msgs::PoseGraphEdge edge = graph_out.edges[j];
+      if (edge.robot_from == edge_in.robot_from && edge.robot_to == edge_in.robot_to &&
           edge.key_from == edge_in.key_from && edge.key_to == edge_in.key_to) {
         skip = true;
         break;
@@ -71,4 +66,4 @@ PoseGraph filterDuplicateEdges(const PoseGraph &graph_in) {
   return graph_out;
 }
 
-} // namespace pose_graph_tools
+}  // namespace pose_graph_tools

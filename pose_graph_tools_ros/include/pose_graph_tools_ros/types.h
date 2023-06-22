@@ -8,21 +8,21 @@
 
 #include <queue>
 
-#include "pose_graph_tools/PoseGraph.h"
+#include <pose_graph_tools_msgs/PoseGraph.h>
 
 namespace pose_graph_tools {
 
 // Buffers
 class PoseGraphStampCompare {
 public:
-  bool operator()(pose_graph_tools::PoseGraphConstPtr x,
-                  pose_graph_tools::PoseGraphConstPtr y) {
+  bool operator()(pose_graph_tools_msgs::PoseGraphConstPtr x,
+                  pose_graph_tools_msgs::PoseGraphConstPtr y) {
     return x->header.stamp > y->header.stamp;
   }
 };
 
-typedef std::priority_queue<pose_graph_tools::PoseGraphConstPtr,
-                            std::vector<pose_graph_tools::PoseGraphConstPtr>,
+typedef std::priority_queue<pose_graph_tools_msgs::PoseGraphConstPtr,
+                            std::vector<pose_graph_tools_msgs::PoseGraphConstPtr>,
                             PoseGraphStampCompare>
     StampedQueue;
 } // namespace pose_graph_tools

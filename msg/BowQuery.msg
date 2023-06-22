@@ -1,3 +1,0 @@
-uint32 robot_id
-uint32 pose_id
-BowVector bow_vector
