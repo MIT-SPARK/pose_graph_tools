@@ -4,7 +4,7 @@
 
 namespace pose_graph_tools {
 
-struct BoWVector {
+struct BowVector {
   std::vector<unsigned int> word_ids;
   std::vector<float> word_values;
 };

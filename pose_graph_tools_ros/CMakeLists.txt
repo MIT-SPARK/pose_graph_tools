@@ -8,6 +8,7 @@ add_compile_options(-std=c++11)
 catkin_simple()
 
 cs_add_library(${PROJECT_NAME}
+  src/conversions.cpp
   src/visualizer.cpp
   src/utils.cpp
   src/types.cpp

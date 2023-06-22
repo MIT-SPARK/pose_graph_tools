@@ -6,9 +6,9 @@
 
 namespace pose_graph_tools {
 
-struct BoWQueries {
+struct BowQueries {
   unsigned int destination_robot_id;
-  std::vector<BoWQuery> queries;
+  std::vector<BowQuery> queries;
 };
 
 }  // namespace pose_graph_tools

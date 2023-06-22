@@ -4,10 +4,10 @@
 
 namespace pose_graph_tools {
 
-struct BoWQuery {
+struct BowQuery {
   unsigned int robot_id;
   unsigned int pose_id;
-  BoWVector bow_vector;
+  BowVector bow_vector;
 };
 
 }  // namespace pose_graph_tools

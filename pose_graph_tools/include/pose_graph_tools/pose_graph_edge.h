@@ -25,6 +25,7 @@ struct PoseGraphEdge {
 
   Type type;
 
+  Eigen::Affine3f pose;
   Eigen::Matrix<double, 6, 6> covariance;
 };
 
