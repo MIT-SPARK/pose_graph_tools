@@ -21,8 +21,8 @@ struct PoseGraphEdge {
     MESH_POSE = 6,
   };
 
-  size_t key_from;
-  size_t key_to;
+  uint64_t key_from;
+  uint64_t key_to;
 
   int robot_from;
   int robot_to;

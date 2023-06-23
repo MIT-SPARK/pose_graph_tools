@@ -12,7 +12,7 @@ struct PoseGraphNode {
   using ConstPtr = std::shared_ptr<const PoseGraphNode>;
 
   int robot_id;
-  size_t key;
+  uint64_t key;
   Eigen::Affine3f pose;
 };
 
