@@ -35,7 +35,6 @@ BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Attach
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
-ColumnLimit:     88
 CommentPragmas:  '^ IWYU pragma:'
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
@@ -68,10 +67,10 @@ IncludeCategories:
   - Regex:    '^<'
     Priority: 30
   # Your project's h files (with angles)
-  - Regex: '^<khronos'
+  - Regex: '^<pose_graph_tools'
     Priority: 40
   # Your project's h files
-  - Regex:    '^"khronos'
+  - Regex:    '^"pose_graph_tools'
     Priority: 50
 IndentCaseLabels: true
 IndentWidth:     2
