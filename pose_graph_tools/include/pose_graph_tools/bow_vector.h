@@ -9,7 +9,7 @@ struct BowVector {
   using Ptr = std::shared_ptr<BowVector>;
   using ConstPtr = std::shared_ptr<const BowVector>;
 
-  std::vector<unsigned int> word_ids;
+  std::vector<uint32_t> word_ids;
   std::vector<float> word_values;
 };
 

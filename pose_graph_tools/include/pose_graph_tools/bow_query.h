@@ -10,8 +10,8 @@ struct BowQuery {
   using Ptr = std::shared_ptr<BowQuery>;
   using ConstPtr = std::shared_ptr<const BowQuery>;
 
-  unsigned int robot_id;
-  unsigned int pose_id;
+  uint32_t robot_id;
+  uint32_t pose_id;
   BowVector bow_vector;
 };
 

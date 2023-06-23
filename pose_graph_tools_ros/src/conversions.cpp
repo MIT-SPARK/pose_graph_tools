@@ -1,30 +1,9 @@
 #include "pose_graph_tools_ros/conversions.h"
 
+#include <eigen_conversions/eigen_msg.h>
+#include <tf2_eigen/tf2_eigen.h>
+
 namespace pose_graph_tools {
-
-geometry_msgs::Pose toMsg(const Eigen::Affine3f& pose) {
-  geometry_msgs::Pose result;
-  result.position.x = pose.translation().x();
-  result.position.y = pose.translation().y();
-  result.position.z = pose.translation().z();
-  const Eigen::Quaternionf quaternion(pose.rotation());
-  result.orientation.x = quaternion.x();
-  result.orientation.y = quaternion.y();
-  result.orientation.z = quaternion.z();
-  result.orientation.w = quaternion.w();
-  return result;
-}
-
-Eigen::Affine3f fromMsg(const geometry_msgs::Pose& pose) {
-  Eigen::Affine3f result;
-  result.translation().x() = pose.position.x;
-  result.translation().y() = pose.position.y;
-  result.translation().z() = pose.position.z;
-  const Eigen::Quaternionf quaternion(
-      pose.orientation.w, pose.orientation.x, pose.orientation.y, pose.orientation.z);
-  result.linear() = quaternion.toRotationMatrix();
-  return result;
-}
 
 pose_graph_tools_msgs::BowVector toMsg(const BowVector& bow_vector) {
   pose_graph_tools_msgs::BowVector result;
@@ -83,7 +62,7 @@ pose_graph_tools_msgs::PoseGraphEdge toMsg(const PoseGraphEdge& pose_graph_edge)
   result.robot_from = pose_graph_edge.robot_from;
   result.robot_to = pose_graph_edge.robot_to;
   result.type = static_cast<int>(pose_graph_edge.type);
-  result.pose = toMsg(pose_graph_edge.pose);
+  result.pose = Eigen::toMsg(pose_graph_edge.pose);
 
   // Store covariance in row-major order.
   for (size_t r = 0; r < 6; ++r) {
@@ -101,7 +80,7 @@ PoseGraphEdge fromMsg(const pose_graph_tools_msgs::PoseGraphEdge& pose_graph_edg
   result.robot_from = pose_graph_edge.robot_from;
   result.robot_to = pose_graph_edge.robot_to;
   result.type = static_cast<PoseGraphEdge::Type>(pose_graph_edge.type);
-  result.pose = fromMsg(pose_graph_edge.pose);
+  tf::poseMsgToEigen(pose_graph_edge.pose, result.pose);
 
   // Store covariance in row-major order.
   for (size_t r = 0; r < 6; ++r) {
@@ -114,22 +93,25 @@ PoseGraphEdge fromMsg(const pose_graph_tools_msgs::PoseGraphEdge& pose_graph_edg
 
 pose_graph_tools_msgs::PoseGraphNode toMsg(const PoseGraphNode& pose_graph_node) {
   pose_graph_tools_msgs::PoseGraphNode result;
+  result.header.stamp.fromNSec(pose_graph_node.stamp_ns);
   result.key = pose_graph_node.key;
   result.robot_id = pose_graph_node.robot_id;
-  result.pose = toMsg(pose_graph_node.pose);
+  result.pose = Eigen::toMsg(pose_graph_node.pose);
   return result;
 }
 
 PoseGraphNode fromMsg(const pose_graph_tools_msgs::PoseGraphNode& pose_graph_node) {
   PoseGraphNode result;
+  result.stamp_ns = pose_graph_node.header.stamp.toNSec();
   result.key = pose_graph_node.key;
   result.robot_id = pose_graph_node.robot_id;
-  result.pose = fromMsg(pose_graph_node.pose);
+  tf::poseMsgToEigen(pose_graph_node.pose, result.pose);
   return result;
 }
 
 pose_graph_tools_msgs::PoseGraph toMsg(const PoseGraph& pose_graph) {
   pose_graph_tools_msgs::PoseGraph result;
+  result.header.stamp.fromNSec(pose_graph.stamp_ns);
   result.nodes.reserve(pose_graph.nodes.size());
   for (const auto& node : pose_graph.nodes) {
     result.nodes.emplace_back(toMsg(node));
@@ -143,6 +125,7 @@ pose_graph_tools_msgs::PoseGraph toMsg(const PoseGraph& pose_graph) {
 
 PoseGraph fromMsg(const pose_graph_tools_msgs::PoseGraph& pose_graph) {
   PoseGraph result;
+  result.stamp_ns = pose_graph.header.stamp.toNSec();
   result.nodes.reserve(pose_graph.nodes.size());
   for (const auto& node : pose_graph.nodes) {
     result.nodes.emplace_back(fromMsg(node));

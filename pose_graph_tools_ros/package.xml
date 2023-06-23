@@ -14,6 +14,8 @@
 
   <depend>roscpp</depend>
   <depend>pose_graph_tools</depend>
+  <depend>eigen_conversions</depend>
+  <depend>tf_eigen</depend>
 
   <depend>pose_graph_tools_msgs</depend>
   <depend>std_msgs</depend>

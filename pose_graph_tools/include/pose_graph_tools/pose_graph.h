@@ -12,6 +12,7 @@ struct PoseGraph {
   using Ptr = std::shared_ptr<PoseGraph>;
   using ConstPtr = std::shared_ptr<const PoseGraph>;
 
+  uint64_t stamp_ns;
   std::vector<PoseGraphNode> nodes;
   std::vector<PoseGraphEdge> edges;
 };

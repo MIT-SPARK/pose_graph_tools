@@ -8,9 +8,6 @@ namespace pose_graph_tools {
 
 // Conversions for the pose_graph_tools C++ types to and from ROS messages.
 
-geometry_msgs::Pose toMsg(const Eigen::Affine3f& pose);
-Eigen::Affine3f fromMsg(const geometry_msgs::Pose& pose);
-
 pose_graph_tools_msgs::BowVector toMsg(const BowVector& bow_vector);
 BowVector fromMsg(const pose_graph_tools_msgs::BowVector& bow_vector);
 

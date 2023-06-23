@@ -24,12 +24,12 @@ struct PoseGraphEdge {
   uint64_t key_from;
   uint64_t key_to;
 
-  int robot_from;
-  int robot_to;
+  int32_t robot_from;
+  int32_t robot_to;
 
   Type type;
 
-  Eigen::Affine3f pose;
+  Eigen::Affine3d pose;
   Eigen::Matrix<double, 6, 6> covariance;
 };
 
