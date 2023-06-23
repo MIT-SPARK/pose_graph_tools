@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(pose_graph_tools_ros)
 
-find_package(catkin_simple REQUIRED)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_compile_options(-std=c++11)
+find_package(catkin_simple REQUIRED)
 
 catkin_simple()
 
