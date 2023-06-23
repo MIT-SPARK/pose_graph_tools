@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include <Eigen/Dense>
@@ -7,6 +8,9 @@
 namespace pose_graph_tools {
 
 struct PoseGraphEdge {
+  using Ptr = std::shared_ptr<PoseGraphEdge>;
+  using ConstPtr = std::shared_ptr<const PoseGraphEdge>;
+
   enum Type : int {
     ODOM = 0,
     LOOPCLOSE = 1,
