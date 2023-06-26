@@ -1,3 +1,0 @@
-uint16 publishing_robot_id
-uint16 destination_robot_id
-pose_graph_tools/PoseGraphEdge[] edges

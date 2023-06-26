@@ -1,0 +1,4 @@
+uint32 robot_id
+uint32[] pose_ids
+---
+pose_graph_tools_msgs/VLCFrameMsg[] frames
