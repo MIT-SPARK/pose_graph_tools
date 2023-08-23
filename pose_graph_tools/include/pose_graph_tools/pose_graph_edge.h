@@ -28,6 +28,7 @@ struct PoseGraphEdge {
   int32_t robot_to;
 
   Type type;
+  uint64_t stamp_ns;
 
   Eigen::Affine3d pose;
   Eigen::Matrix<double, 6, 6> covariance;

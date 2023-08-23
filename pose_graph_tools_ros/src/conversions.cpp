@@ -62,6 +62,7 @@ pose_graph_tools_msgs::PoseGraphEdge toMsg(const PoseGraphEdge& pose_graph_edge)
   result.robot_from = pose_graph_edge.robot_from;
   result.robot_to = pose_graph_edge.robot_to;
   result.type = static_cast<int>(pose_graph_edge.type);
+  result.header.stamp.fromNSec(pose_graph_edge.stamp_ns);
   result.pose = Eigen::toMsg(pose_graph_edge.pose);
 
   // Store covariance in row-major order.
@@ -79,6 +80,7 @@ PoseGraphEdge fromMsg(const pose_graph_tools_msgs::PoseGraphEdge& pose_graph_edg
   result.key_to = pose_graph_edge.key_to;
   result.robot_from = pose_graph_edge.robot_from;
   result.robot_to = pose_graph_edge.robot_to;
+  result.stamp_ns = pose_graph_edge.header.stamp.toNSec();
   result.type = static_cast<PoseGraphEdge::Type>(pose_graph_edge.type);
   tf::poseMsgToEigen(pose_graph_edge.pose, result.pose);
 
