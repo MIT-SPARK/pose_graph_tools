@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pose_graph_tools)
 
-find_package(catkin_simple REQUIRED)
+find_package(catkin_simple REQUIRED interactive_markers)
 
 add_compile_options(-std=c++11)
 
