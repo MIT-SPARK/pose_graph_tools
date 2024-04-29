@@ -10,13 +10,13 @@
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <buildtool_depend>catkin_simple</buildtool_depend>
 
-  <depend>roscpp</depend>
+  <!-- pure cmake -->
   <depend>pose_graph_tools</depend>
-  <depend>eigen_conversions</depend>
-  <depend>tf_eigen</depend>
-
+  <!-- ros -->
+  <depend>roscpp</depend>
+  <depend>tf2_eigen</depend>
+  <!-- messages -->
   <depend>pose_graph_tools_msgs</depend>
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>

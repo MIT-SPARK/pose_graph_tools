@@ -7,11 +7,10 @@
 #include <utility>
 #include <vector>
 
-#include <geometry_msgs/Point.h>
+#include <geometry_msgs/Pose.h>
 #include <interactive_markers/interactive_marker_server.h>
 #include <pose_graph_tools_msgs/PoseGraph.h>
 #include <ros/ros.h>
-#include <tf/transform_datatypes.h>
 
 class Visualizer {
  public:
@@ -24,7 +23,8 @@ class Visualizer {
 
   geometry_msgs::Point getPositionFromKey(int robot_id, uint64_t key) const;
 
-  void MakeMenuMarker(const tf::Pose& position, const std::string& id_number);
+  void MakeMenuMarker(const geometry_msgs::Pose& position,
+                      const std::string& id_number);
 
  private:
   std::string frame_id_;
@@ -44,7 +44,8 @@ class Visualizer {
   std::vector<Edge> odometry_edges_;
   std::vector<Edge> loop_edges_;
   std::vector<Edge> rejected_loop_edges_;
-  std::map<int, std::map<uint64_t, tf::Pose> > keyed_poses_;
+  std::map<int, std::map<uint64_t, geometry_msgs::Pose>> keyed_poses_;
 
-  std::shared_ptr<interactive_markers::InteractiveMarkerServer> interactive_mrkr_srvr_;
+  std::shared_ptr<interactive_markers::InteractiveMarkerServer>
+      interactive_mrkr_srvr_;
 };

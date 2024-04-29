@@ -1,8 +1,6 @@
 #include "pose_graph_tools_ros/visualizer.h"
 
 #include <interactive_markers/menu_handler.h>
-#include <pose_graph_tools_msgs/PoseGraphEdge.h>
-#include <pose_graph_tools_msgs/PoseGraphNode.h>
 #include <visualization_msgs/Marker.h>
 
 Visualizer::Visualizer(const ros::NodeHandle& nh) {
@@ -16,11 +14,13 @@ Visualizer::Visualizer(const ros::NodeHandle& nh) {
   // start publishers
   odometry_edge_pub_ =
       nl.advertise<visualization_msgs::Marker>("odometry_edges", 10, false);
-  loop_edge_pub_ = nl.advertise<visualization_msgs::Marker>("loop_edges", 10, false);
-  rejected_loop_edge_pub_ =
-      nl.advertise<visualization_msgs::Marker>("rejected_loop_edges", 10, false);
+  loop_edge_pub_ =
+      nl.advertise<visualization_msgs::Marker>("loop_edges", 10, false);
+  rejected_loop_edge_pub_ = nl.advertise<visualization_msgs::Marker>(
+      "rejected_loop_edges", 10, false);
 
-  graph_node_pub_ = nl.advertise<visualization_msgs::Marker>("graph_nodes", 10, false);
+  graph_node_pub_ =
+      nl.advertise<visualization_msgs::Marker>("graph_nodes", 10, false);
   graph_node_id_pub_ =
       nl.advertise<visualization_msgs::Marker>("graph_nodes_ids", 10, false);
 
@@ -34,25 +34,23 @@ Visualizer::Visualizer(const ros::NodeHandle& nh) {
 void Visualizer::PoseGraphCallback(
     const pose_graph_tools_msgs::PoseGraph::ConstPtr& msg) {
   // iterate through nodes in pose graph
-  for (const pose_graph_tools_msgs::PoseGraphNode& msg_node : msg->nodes) {
-    tf::Pose pose;
-    tf::poseMsgToTF(msg_node.pose, pose);
-
+  for (const auto& msg_node : msg->nodes) {
     // Fill pose nodes (representing the robot position)
-    keyed_poses_[msg_node.robot_id][msg_node.key] = pose;
+    keyed_poses_[msg_node.robot_id][msg_node.key] = msg_node.pose;
   }
 
   // update frame id
   frame_id_ = msg->header.frame_id;
 
   // iterate through edges in pose graph
-  for (const pose_graph_tools_msgs::PoseGraphEdge& msg_edge : msg->edges) {
+  for (const auto& msg_edge : msg->edges) {
     Node from = std::make_pair(msg_edge.robot_from, msg_edge.key_from);
     Node to = std::make_pair(msg_edge.robot_to, msg_edge.key_to);
     if (msg_edge.type == pose_graph_tools_msgs::PoseGraphEdge::ODOM) {
       // initialize first seen robot id
       odometry_edges_.emplace_back(std::make_pair(from, to));
-    } else if (msg_edge.type == pose_graph_tools_msgs::PoseGraphEdge::LOOPCLOSE) {
+    } else if (msg_edge.type ==
+               pose_graph_tools_msgs::PoseGraphEdge::LOOPCLOSE) {
       loop_edges_.emplace_back(std::make_pair(from, to));
     } else if (msg_edge.type ==
                pose_graph_tools_msgs::PoseGraphEdge::REJECTED_LOOPCLOSE) {
@@ -63,24 +61,20 @@ void Visualizer::PoseGraphCallback(
   visualize();
 }
 
-geometry_msgs::Point Visualizer::getPositionFromKey(int robot_id, uint64_t key) const {
-  tf::Vector3 v = keyed_poses_.at(robot_id).at(key).getOrigin();
-  geometry_msgs::Point p;
-  p.x = v.x();
-  p.y = v.y();
-  p.z = v.z();
-  return p;
+geometry_msgs::Point Visualizer::getPositionFromKey(int robot_id,
+                                                    uint64_t key) const {
+  return keyed_poses_.at(robot_id).at(key).position;
 }
 
 // Interactive Marker Menu to click and see key of node
-void Visualizer::MakeMenuMarker(const tf::Pose& position,
+void Visualizer::MakeMenuMarker(const geometry_msgs::Pose& position,
                                 const std::string& id_number) {
   interactive_markers::MenuHandler menu_handler;
 
   visualization_msgs::InteractiveMarker int_marker;
   int_marker.header.frame_id = frame_id_;
   int_marker.scale = 1.0;
-  tf::poseTFToMsg(position, int_marker.pose);
+  int_marker.pose = position;
   int_marker.name = id_number;
 
   visualization_msgs::Marker marker;
@@ -208,10 +202,9 @@ void Visualizer::visualize() {
     m.pose.orientation.w = 1.0;
 
     int id_base = 100;
-    int counter = 0;
     for (const auto& robot : keyed_poses_) {
       for (const auto& keyedPose : robot.second) {
-        tf::poseTFToMsg(keyedPose.second, m.pose);
+        m.pose = keyedPose.second;
         // Display text for the node
         std::string robot_id = std::to_string(keyedPose.first);
         MakeMenuMarker(keyedPose.second, robot_id);

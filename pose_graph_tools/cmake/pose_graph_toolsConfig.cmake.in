@@ -1,0 +1,16 @@
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+
+get_filename_component(pose_graph_tools_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}"
+                       PATH)
+
+find_dependency(Eigen3 REQUIRED)
+
+if(NOT TARGET pose_graph_tools::pose_graph_tools)
+  include("${pose_graph_tools_CMAKE_DIR}/pose_graph_toolsTargets.cmake")
+endif()
+
+set(pose_graph_tools_LIBRARIES pose_graph_tools::pose_graph_tools)
+set(pose_graph_tools_FOUND_CATKIN_PROJECT TRUE)
+
+check_required_components(pose_graph_tools)

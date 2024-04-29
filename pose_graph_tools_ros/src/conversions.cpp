@@ -1,6 +1,5 @@
 #include "pose_graph_tools_ros/conversions.h"
 
-#include <eigen_conversions/eigen_msg.h>
 #include <tf2_eigen/tf2_eigen.h>
 
 namespace pose_graph_tools {
@@ -55,7 +54,8 @@ BowQueries fromMsg(const pose_graph_tools_msgs::BowQueries& bow_queries) {
   return result;
 }
 
-pose_graph_tools_msgs::PoseGraphEdge toMsg(const PoseGraphEdge& pose_graph_edge) {
+pose_graph_tools_msgs::PoseGraphEdge toMsg(
+    const PoseGraphEdge& pose_graph_edge) {
   pose_graph_tools_msgs::PoseGraphEdge result;
   result.key_from = pose_graph_edge.key_from;
   result.key_to = pose_graph_edge.key_to;
@@ -63,7 +63,7 @@ pose_graph_tools_msgs::PoseGraphEdge toMsg(const PoseGraphEdge& pose_graph_edge)
   result.robot_to = pose_graph_edge.robot_to;
   result.type = static_cast<int>(pose_graph_edge.type);
   result.header.stamp.fromNSec(pose_graph_edge.stamp_ns);
-  result.pose = Eigen::toMsg(pose_graph_edge.pose);
+  tf2::convert(pose_graph_edge.pose, result.pose);
 
   // Store covariance in row-major order.
   for (size_t r = 0; r < 6; ++r) {
@@ -74,7 +74,8 @@ pose_graph_tools_msgs::PoseGraphEdge toMsg(const PoseGraphEdge& pose_graph_edge)
   return result;
 }
 
-PoseGraphEdge fromMsg(const pose_graph_tools_msgs::PoseGraphEdge& pose_graph_edge) {
+PoseGraphEdge fromMsg(
+    const pose_graph_tools_msgs::PoseGraphEdge& pose_graph_edge) {
   PoseGraphEdge result;
   result.key_from = pose_graph_edge.key_from;
   result.key_to = pose_graph_edge.key_to;
@@ -82,7 +83,7 @@ PoseGraphEdge fromMsg(const pose_graph_tools_msgs::PoseGraphEdge& pose_graph_edg
   result.robot_to = pose_graph_edge.robot_to;
   result.stamp_ns = pose_graph_edge.header.stamp.toNSec();
   result.type = static_cast<PoseGraphEdge::Type>(pose_graph_edge.type);
-  tf::poseMsgToEigen(pose_graph_edge.pose, result.pose);
+  tf2::convert(pose_graph_edge.pose, result.pose);
 
   // Store covariance in row-major order.
   for (size_t r = 0; r < 6; ++r) {
@@ -93,21 +94,23 @@ PoseGraphEdge fromMsg(const pose_graph_tools_msgs::PoseGraphEdge& pose_graph_edg
   return result;
 }
 
-pose_graph_tools_msgs::PoseGraphNode toMsg(const PoseGraphNode& pose_graph_node) {
+pose_graph_tools_msgs::PoseGraphNode toMsg(
+    const PoseGraphNode& pose_graph_node) {
   pose_graph_tools_msgs::PoseGraphNode result;
   result.header.stamp.fromNSec(pose_graph_node.stamp_ns);
   result.key = pose_graph_node.key;
   result.robot_id = pose_graph_node.robot_id;
-  result.pose = Eigen::toMsg(pose_graph_node.pose);
+  tf2::convert(pose_graph_node.pose, result.pose);
   return result;
 }
 
-PoseGraphNode fromMsg(const pose_graph_tools_msgs::PoseGraphNode& pose_graph_node) {
+PoseGraphNode fromMsg(
+    const pose_graph_tools_msgs::PoseGraphNode& pose_graph_node) {
   PoseGraphNode result;
   result.stamp_ns = pose_graph_node.header.stamp.toNSec();
   result.key = pose_graph_node.key;
   result.robot_id = pose_graph_node.robot_id;
-  tf::poseMsgToEigen(pose_graph_node.pose, result.pose);
+  tf2::convert(pose_graph_node.pose, result.pose);
   return result;
 }
 
