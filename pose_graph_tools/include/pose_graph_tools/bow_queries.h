@@ -13,6 +13,8 @@ struct BowQueries {
 
   uint32_t destination_robot_id;
   std::vector<BowQuery> queries;
+
+  friend std::ostream& operator<<(std::ostream& os, const BowQueries& queries);
 };
 
 }  // namespace pose_graph_tools

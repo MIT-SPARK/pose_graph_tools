@@ -11,6 +11,9 @@ struct BowVector {
 
   std::vector<uint32_t> word_ids;
   std::vector<float> word_values;
+
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const BowVector& bow_vector);
 };
 
 }  // namespace pose_graph_tools
