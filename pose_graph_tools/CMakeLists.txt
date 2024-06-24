@@ -10,12 +10,12 @@ include(CMakePackageConfigHelpers)
 
 find_package(Eigen3 REQUIRED)
 
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} src/ostream.cpp)
 target_include_directories(
   ${PROJECT_NAME}
-  INTERFACE $<INSTALL_INTERFACE:include>
+  PUBLIC $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_link_libraries(${PROJECT_NAME} INTERFACE Eigen3::Eigen)
+target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
 
 install(
   TARGETS ${PROJECT_NAME}

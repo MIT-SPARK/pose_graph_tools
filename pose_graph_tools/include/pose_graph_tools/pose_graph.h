@@ -15,6 +15,8 @@ struct PoseGraph {
   uint64_t stamp_ns;
   std::vector<PoseGraphNode> nodes;
   std::vector<PoseGraphEdge> edges;
+
+  friend std::ostream& operator<<(std::ostream& os, const PoseGraph& graph);
 };
 
 }  // namespace pose_graph_tools

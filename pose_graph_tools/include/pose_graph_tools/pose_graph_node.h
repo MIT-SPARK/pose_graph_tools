@@ -15,6 +15,8 @@ struct PoseGraphNode {
   int32_t robot_id;
   uint64_t key;
   Eigen::Affine3d pose;
+
+  friend std::ostream& operator<<(std::ostream& os, const PoseGraphNode& node);
 };
 
 }  // namespace pose_graph_tools

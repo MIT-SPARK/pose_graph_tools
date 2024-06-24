@@ -32,6 +32,8 @@ struct PoseGraphEdge {
 
   Eigen::Affine3d pose;
   Eigen::Matrix<double, 6, 6> covariance;
+
+  friend std::ostream& operator<<(std::ostream& os, const PoseGraphEdge& edge);
 };
 
 }  // namespace pose_graph_tools
