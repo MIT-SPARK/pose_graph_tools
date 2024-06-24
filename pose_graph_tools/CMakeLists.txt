@@ -16,6 +16,8 @@ target_include_directories(
   PUBLIC $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
+set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+add_library(pose_graph_tools::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME}
