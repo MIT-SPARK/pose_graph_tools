@@ -16,6 +16,7 @@ struct PoseGraph {
   std::vector<PoseGraphNode> nodes;
   std::vector<PoseGraphEdge> edges;
 
+  inline bool empty() const { return nodes.empty() && edges.empty(); }
   friend std::ostream& operator<<(std::ostream& os, const PoseGraph& graph);
 };
 
