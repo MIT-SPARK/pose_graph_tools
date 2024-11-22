@@ -42,6 +42,9 @@ void Visualizer::PoseGraphCallback(
   // update frame id
   frame_id_ = msg->header.frame_id;
 
+  odometry_edges_.clear();
+  loop_edges_.clear();
+  rejected_loop_edges_.clear();
   // iterate through edges in pose graph
   for (const auto& msg_edge : msg->edges) {
     Node from = std::make_pair(msg_edge.robot_from, msg_edge.key_from);
