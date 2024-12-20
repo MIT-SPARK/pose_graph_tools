@@ -101,6 +101,7 @@ pose_graph_tools_msgs::PoseGraphNode toMsg(
   result.key = pose_graph_node.key;
   result.robot_id = pose_graph_node.robot_id;
   tf2::convert(pose_graph_node.pose, result.pose);
+
   return result;
 }
 

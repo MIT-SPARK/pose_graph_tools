@@ -18,13 +18,13 @@ class Visualizer {
 
   void visualize();
 
+  typedef std::pair<int, uint64_t> Node;  // robot id, key
+  typedef std::pair<Node, Node> Edge;
+
  private:
   void PoseGraphCallback(const pose_graph_tools_msgs::PoseGraph::ConstPtr& msg);
 
   geometry_msgs::Point getPositionFromKey(int robot_id, uint64_t key) const;
-
-  void MakeMenuMarker(const geometry_msgs::Pose& position,
-                      const std::string& id_number);
 
  private:
   std::string frame_id_;
@@ -33,14 +33,8 @@ class Visualizer {
   ros::Subscriber pose_graph_sub_;
 
   // publishers
-  ros::Publisher odometry_edge_pub_;
-  ros::Publisher loop_edge_pub_;
-  ros::Publisher rejected_loop_edge_pub_;
-  ros::Publisher graph_node_pub_;
-  ros::Publisher graph_node_id_pub_;
+  ros::Publisher marker_array_pub_;
 
-  typedef std::pair<int, uint64_t> Node;  // robot id, key
-  typedef std::pair<Node, Node> Edge;
   std::vector<Edge> odometry_edges_;
   std::vector<Edge> loop_edges_;
   std::vector<Edge> rejected_loop_edges_;
