@@ -20,7 +20,7 @@ struct PoseGraphEdge {
     POSE_MESH = 5,
     MESH_POSE = 6,
     PRIOR = 7,
-    REJECTED_PRIOR = 7,
+    REJECTED_PRIOR = 8,
   };
 
   uint64_t key_from;
