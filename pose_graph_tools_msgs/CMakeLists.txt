@@ -17,36 +17,26 @@ endif()
 
 rosidl_generate_interfaces(
   ${PROJECT_NAME}
-  msg/FeatureVector.msg
-  msg/FeatureVectors.msg
-  msg/FeatureVectorStamped.msg
-  msg/FeatureImage.msg
-  srv/EncodeFeature.srv
+  msg/BowQueries.msg
+  msg/BowQuery.msg
+  msg/BowRequests.msg
+  msg/BowVector.msg
+  msg/LoopClosures.msg
+  msg/LoopClosuresAck.msg
+  msg/PoseGraph.msg
+  msg/PoseGraphEdge.msg
+  msg/PoseGraphNode.msg
+  msg/TimeRangeQuery.msg
+  msg/VLCFrameMsg.msg
+  msg/VLCFrames.msg
+  msg/VLCRequests.msg
+  srv/LcdFrameRegistration.srv
+  srv/PoseGraphQuery.srv
+  srv/VLCFrameQuery.srv
   DEPENDENCIES
   builtin_interfaces
+  geometry_msgs
   sensor_msgs
-  std_msgs
-)
-
-add_message_files(
-  DIRECTORY
-  msg
-  FILES
-  BowQueries.msg
-  BowQuery.msg
-  BowRequests.msg
-  BowVector.msg
-  LoopClosures.msg
-  LoopClosuresAck.msg
-  PoseGraph.msg
-  PoseGraphEdge.msg
-  PoseGraphNode.msg
-  TimeRangeQuery.msg
-  VLCFrameMsg.msg
-  VLCFrames.msg
-  VLCRequests.msg)
-
-add_service_files(DIRECTORY srv FILES LcdFrameRegistration.srv
-                  PoseGraphQuery.srv VLCFrameQuery.srv)
+  std_msgs)
 
 ament_package()
