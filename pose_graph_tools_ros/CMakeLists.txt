@@ -5,53 +5,48 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_compile_options(-Wall -Wextra)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra)
+endif()
 
+find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(pose_graph_tools REQUIRED)
-find_package(
-  catkin REQUIRED
-  COMPONENTS roscpp
-             tf2_eigen
-             pose_graph_tools_msgs
-             std_msgs
-             geometry_msgs
-             visualization_msgs
-             interactive_markers)
+find_package(pose_graph_tools_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(tf2_eigen REQUIRED)
+find_package(visualization_msgs REQUIRED)
 
-catkin_package(
-  CATKIN_DEPENDS
-  roscpp
-  tf2_eigen
-  pose_graph_tools_msgs
-  std_msgs
-  geometry_msgs
-  visualization_msgs
-  interactive_markers
-  DEPENDS
-  pose_graph_tools
-  INCLUDE_DIRS
-  include
-  LIBRARIES
-  ${PROJECT_NAME})
+# find_package(catkin REQUIRED COMPONENTS interactive_markers)
 
 add_library(${PROJECT_NAME} src/conversions.cpp src/visualizer.cpp
                             src/utils.cpp)
-target_include_directories(${PROJECT_NAME} PUBLIC include
-                                                  ${catkin_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC pose_graph_tools::pose_graph_tools
-                                             ${catkin_LIBRARIES})
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+ament_target_dependencies(
+  ${PROJECT_NAME}
+  PUBLIC
+  geometry_msgs
+  pose_graph_tools
+  pose_graph_tools_msgs
+  rclcpp
+  std_msgs
+  tf2_eigen
+  visualization_msgs)
 
 add_executable(visualizer_node src/visualizer_node.cpp)
 target_link_libraries(visualizer_node ${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME} visualizer_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
+  EXPORT ${PROJECT_NAME}-targets
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME})
+install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION include/${PROJECT_NAME}/)
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
-install(DIRECTORY include/${PROJECT_NAME}/
-        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-
-install(DIRECTORY launch/
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
+ament_export_targets(${PROJECT_NAME}-targets)
+ament_package()

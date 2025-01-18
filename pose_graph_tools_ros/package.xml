@@ -1,25 +1,24 @@
 <?xml version="1.0"?>
-<package format="2">
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>pose_graph_tools_ros</name>
   <version>1.0.0</version>
   <description>ROS message definitions of pose_graph_tools.</description>
-
   <maintainer email="yunchang@mit.edu">Yun Chang</maintainer>
   <maintainer email="lschmid@mit.edu">Lukas Schmid</maintainer>
-
   <license>BSD</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
-
-  <!-- pure cmake -->
-  <depend>pose_graph_tools</depend>
-  <!-- ros -->
-  <depend>roscpp</depend>
-  <depend>tf2_eigen</depend>
-  <!-- messages -->
-  <depend>pose_graph_tools_msgs</depend>
-  <depend>std_msgs</depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>geometry_msgs</depend>
+  <depend>pose_graph_tools</depend>
+  <depend>pose_graph_tools_msgs</depend>
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+  <depend>tf2_eigen</depend>
   <depend>visualization_msgs</depend>
-  <depend>interactive_markers</depend>
+  <!--<depend>interactive_markers</depend>-->
+
+  <export>
+      <build_type>ament_cmake</build_type>
+  </export>
 </package>

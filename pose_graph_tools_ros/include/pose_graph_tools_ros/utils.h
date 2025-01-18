@@ -4,31 +4,32 @@
 #include <string>
 #include <vector>
 
-#include <pose_graph_tools_msgs/PoseGraph.h>
+#include <pose_graph_tools_msgs/msg/pose_graph.hpp>
+#include <rclcpp/time.hpp>
 
 namespace pose_graph_tools {
 
-bool savePoseGraphEdgesToFile(const pose_graph_tools_msgs::PoseGraph &graph,
-                              const std::string &filename);
+using PoseGraphMsg = pose_graph_tools_msgs::msg::PoseGraph;
+using PoseGraphMsgPtr = pose_graph_tools_msgs::msg::PoseGraph::ConstSharedPtr;
+
+bool savePoseGraphEdgesToFile(const PoseGraphMsg& graph,
+                              const std::string& filename);
 
 // Filter duplicate edges in the input pose graph
 // Two edges are considered duplicate if they share the common key_from, key_to,
 // robot_from, robot_to
-pose_graph_tools_msgs::PoseGraph filterDuplicateEdges(
-    const pose_graph_tools_msgs::PoseGraph &graph_in);
+PoseGraphMsg filterDuplicateEdges(const PoseGraphMsg& graph_in);
 
 // Buffers
 class PoseGraphStampCompare {
  public:
-  bool operator()(pose_graph_tools_msgs::PoseGraphConstPtr x,
-                  pose_graph_tools_msgs::PoseGraphConstPtr y) {
-    return x->header.stamp > y->header.stamp;
+  bool operator()(PoseGraphMsgPtr x, PoseGraphMsgPtr y) {
+    return rclcpp::Time(x->header.stamp) > rclcpp::Time(y->header.stamp);
   }
 };
 
-typedef std::priority_queue<pose_graph_tools_msgs::PoseGraphConstPtr,
-                            std::vector<pose_graph_tools_msgs::PoseGraphConstPtr>,
-                            PoseGraphStampCompare>
-    StampedQueue;
+using StampedQueue = std::priority_queue<PoseGraphMsgPtr,
+                                         std::vector<PoseGraphMsgPtr>,
+                                         PoseGraphStampCompare>;
 
 }  // namespace pose_graph_tools

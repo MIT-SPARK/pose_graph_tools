@@ -52,3 +52,5 @@ CATKIN_IGNORE
 
 # VSCode
 .vscode/
+
+*compile_commands.json
