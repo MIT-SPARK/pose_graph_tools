@@ -15,14 +15,13 @@ find_package(interactive_markers REQUIRED)
 find_package(pose_graph_tools REQUIRED)
 find_package(pose_graph_tools_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
-# find_package(catkin REQUIRED COMPONENTS interactive_markers)
-
-add_library(${PROJECT_NAME} src/conversions.cpp src/visualizer.cpp
-                            src/utils.cpp)
+add_library(${PROJECT_NAME} SHARED src/conversions.cpp src/visualizer.cpp
+                                   src/utils.cpp)
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
@@ -35,15 +34,17 @@ ament_target_dependencies(
   pose_graph_tools
   pose_graph_tools_msgs
   rclcpp
+  rclcpp_components
   std_msgs
   tf2_eigen
   visualization_msgs)
 
-add_executable(visualizer_node src/visualizer_node.cpp)
-target_link_libraries(visualizer_node ${PROJECT_NAME})
+rclcpp_components_register_node(
+  ${PROJECT_NAME} PLUGIN pose_graph_tools_ros::Visualizer EXECUTABLE
+  visualizer_node)
 
 install(
-  TARGETS ${PROJECT_NAME} visualizer_node
+  TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}-targets
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME})

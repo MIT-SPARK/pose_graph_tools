@@ -13,7 +13,9 @@
 #include <rclcpp/rclcpp.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-class Visualizer : rclcpp::Node {
+namespace pose_graph_tools_ros {
+
+class Visualizer : public rclcpp::Node {
  public:
   using Node = std::pair<int, uint64_t>;  // robot id, key
   using Edge = std::pair<Node, Node>;
@@ -37,3 +39,5 @@ class Visualizer : rclcpp::Node {
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_;
   std::shared_ptr<interactive_markers::InteractiveMarkerServer> server_;
 };
+
+}  // namespace pose_graph_tools_ros

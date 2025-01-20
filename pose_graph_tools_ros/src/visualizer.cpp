@@ -3,6 +3,8 @@
 #include <interactive_markers/menu_handler.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
+namespace pose_graph_tools_ros {
+
 using geometry_msgs::msg::Point;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Quaternion;
@@ -262,10 +264,10 @@ Visualizer::Visualizer(const rclcpp::NodeOptions& options)
 
   // start subscribers
   sub_ = create_subscription<PoseGraph>(
-      "graph", 10, [this](const auto& msg) { callback(msg); });
+      "graph", 10, [this](const PoseGraph& msg) -> void { callback(msg); });
   pub_ = create_publisher<MarkerArray>("pose_graph_markers", 10);
   server_ = std::make_shared<interactive_markers::InteractiveMarkerServer>(
-      "interactive_node", "", false);
+      "interactive_node", this);
 }
 
 void Visualizer::callback(const PoseGraph& msg) {
@@ -348,3 +350,8 @@ void Visualizer::visualize() {
 
   server_->applyChanges();
 }
+
+}  // namespace pose_graph_tools_ros
+
+#include <rclcpp_components/register_node_macro.hpp>
+RCLCPP_COMPONENTS_REGISTER_NODE(pose_graph_tools_ros::Visualizer)
