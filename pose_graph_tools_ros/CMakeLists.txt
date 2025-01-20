@@ -11,6 +11,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(interactive_markers REQUIRED)
 find_package(pose_graph_tools REQUIRED)
 find_package(pose_graph_tools_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -30,6 +31,7 @@ ament_target_dependencies(
   ${PROJECT_NAME}
   PUBLIC
   geometry_msgs
+  interactive_markers
   pose_graph_tools
   pose_graph_tools_msgs
   rclcpp

@@ -10,13 +10,13 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>geometry_msgs</depend>
+  <depend>interactive_markers</depend>
   <depend>pose_graph_tools</depend>
   <depend>pose_graph_tools_msgs</depend>
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
   <depend>tf2_eigen</depend>
   <depend>visualization_msgs</depend>
-  <!--<depend>interactive_markers</depend>-->
 
   <export>
       <build_type>ament_cmake</build_type>
