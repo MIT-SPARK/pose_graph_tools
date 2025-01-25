@@ -52,4 +52,13 @@ install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION include/${PROJECT_NAME}/)
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME}-targets)
+ament_export_dependencies(
+  geometry_msgs
+  interactive_markers
+  pose_graph_tools
+  pose_graph_tools_msgs
+  rclcpp
+  std_msgs
+  tf2_eigen
+  visualization_msgs)
 ament_package()
