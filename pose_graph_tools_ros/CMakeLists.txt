@@ -48,7 +48,7 @@ install(
   EXPORT ${PROJECT_NAME}-targets
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME})
-install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION include/${PROJECT_NAME}/)
+install(DIRECTORY include/${PROJECT_NAME} DESTINATION include/${PROJECT_NAME})
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME}-targets)
