@@ -6,6 +6,8 @@
 #include <pose_graph_tools/pose_graph.h>
 #include <pose_graph_tools_msgs/msg/bow_queries.hpp>
 #include <pose_graph_tools_msgs/msg/pose_graph.hpp>
+#include <rclcpp/publisher.hpp>
+#include <rclcpp/subscription.hpp>
 #include <rclcpp/type_adapter.hpp>
 
 namespace pose_graph_tools {
@@ -49,3 +51,13 @@ struct TypeAdapter<pose_graph_tools::PoseGraph,
 };
 
 }  // namespace rclcpp
+
+namespace pose_graph_tools {
+
+using PoseGraphTypeAdapter =
+    rclcpp::adapt_type<PoseGraph>::as<pose_graph_msgs::PoseGraph>;
+using PoseGraphPublisher = rclcpp::Publisher<PoseGraphTypeAdapter>::SharedPtr;
+using PoseGraphSubscription =
+    rclcpp::Subscription<PoseGraphTypeAdapter>::SharedPtr;
+
+}  // namespace pose_graph_tools
