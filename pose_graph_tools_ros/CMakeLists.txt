@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra)
+  add_compile_options(-Wall -Wextra -Wpedantic -Wshadow)
 endif()
 
 find_package(ament_cmake REQUIRED)
@@ -16,7 +16,6 @@ find_package(pose_graph_tools REQUIRED)
 find_package(pose_graph_tools_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(std_msgs REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
@@ -25,19 +24,13 @@ add_library(${PROJECT_NAME} SHARED src/conversions.cpp src/visualizer.cpp
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-ament_target_dependencies(
-  ${PROJECT_NAME}
-  PUBLIC
-  geometry_msgs
-  interactive_markers
-  pose_graph_tools
-  pose_graph_tools_msgs
-  rclcpp
-  rclcpp_components
-  std_msgs
-  tf2_eigen
-  visualization_msgs)
+         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  PRIVATE ${visualization_msgs_INCLUDE_DIRS})
+target_link_libraries(
+  ${PROJECT_NAME} PRIVATE interactive_markers::interactive_markers
+                          tf2_eigen::tf2_eigen ${visualization_msgs_LIBRARIES})
+ament_target_dependencies(${PROJECT_NAME} PUBLIC pose_graph_tools
+                          pose_graph_tools_msgs rclcpp rclcpp_components)
 
 rclcpp_components_register_node(
   ${PROJECT_NAME} PLUGIN pose_graph_tools_ros::Visualizer EXECUTABLE
@@ -46,19 +39,12 @@ rclcpp_components_register_node(
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}-targets
+  ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include/${PROJECT_NAME})
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME}-targets)
-ament_export_dependencies(
-  geometry_msgs
-  interactive_markers
-  pose_graph_tools
-  pose_graph_tools_msgs
-  rclcpp
-  std_msgs
-  tf2_eigen
-  visualization_msgs)
+ament_export_dependencies(pose_graph_tools pose_graph_tools_msgs rclcpp)
 ament_package()

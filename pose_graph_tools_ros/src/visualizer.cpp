@@ -1,6 +1,14 @@
-#include "pose_graph_tools_ros/visualizer.h"
+#include <map>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
+#include <interactive_markers/interactive_marker_server.hpp>
 #include <interactive_markers/menu_handler.hpp>
+#include <pose_graph_tools_msgs/msg/pose_graph.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 namespace pose_graph_tools_ros {
@@ -15,7 +23,33 @@ using visualization_msgs::msg::InteractiveMarkerControl;
 using visualization_msgs::msg::Marker;
 using visualization_msgs::msg::MarkerArray;
 
-using KeyedPoses = std::map<int, std::map<uint64_t, geometry_msgs::msg::Pose>>;
+using KeyedPoses = std::map<int, std::map<uint64_t, Pose>>;
+
+class Visualizer : public rclcpp::Node {
+ public:
+  using Node = std::pair<int, uint64_t>;  // robot id, key
+  using Edge = std::pair<Node, Node>;
+
+  explicit Visualizer(const rclcpp::NodeOptions& options);
+
+  void visualize();
+
+ private:
+  void callback(const PoseGraph& msg);
+
+ private:
+  // state
+  std::string frame_id_;
+  std::vector<Edge> odometry_edges_;
+  std::vector<Edge> loop_edges_;
+  std::vector<Edge> rejected_loop_edges_;
+  KeyedPoses keyed_poses_;
+  // ros infrastructure
+  rclcpp::Subscription<PoseGraph>::SharedPtr sub_;
+  rclcpp::Publisher<MarkerArray>::SharedPtr pub_;
+  std::shared_ptr<interactive_markers::InteractiveMarkerServer> server_;
+};
+
 using VisualizerEdges = std::vector<Visualizer::Edge>;
 
 namespace {
