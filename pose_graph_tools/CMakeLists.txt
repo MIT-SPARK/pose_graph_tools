@@ -8,6 +8,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+
 find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME} src/ostream.cpp)
