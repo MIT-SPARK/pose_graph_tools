@@ -1,146 +1,141 @@
 #include "pose_graph_tools_ros/conversions.h"
 
-#include <tf2_eigen/tf2_eigen.h>
+#include <rclcpp/time.hpp>
+#include <tf2_eigen/tf2_eigen.hpp>
 
 namespace pose_graph_tools {
 
-pose_graph_tools_msgs::BowVector toMsg(const BowVector& bow_vector) {
-  pose_graph_tools_msgs::BowVector result;
-  result.word_ids = bow_vector.word_ids;
-  result.word_values = bow_vector.word_values;
-  return result;
+void toMsg(const BowVector& src, pose_graph_msgs::BowVector& dest) {
+  dest.word_ids = src.word_ids;
+  dest.word_values = src.word_values;
 }
 
-BowVector fromMsg(const pose_graph_tools_msgs::BowVector& bow_vector) {
-  BowVector result;
-  result.word_ids = bow_vector.word_ids;
-  result.word_values = bow_vector.word_values;
-  return result;
+void fromMsg(const pose_graph_msgs::BowVector& src, BowVector& dest) {
+  dest.word_ids = src.word_ids;
+  dest.word_values = src.word_values;
 }
 
-pose_graph_tools_msgs::BowQuery toMsg(const BowQuery& bow_query) {
-  pose_graph_tools_msgs::BowQuery result;
-  result.robot_id = bow_query.robot_id;
-  result.pose_id = bow_query.pose_id;
-  result.bow_vector = toMsg(bow_query.bow_vector);
-  return result;
+void toMsg(const BowQuery& src, pose_graph_msgs::BowQuery& dest) {
+  dest.robot_id = src.robot_id;
+  dest.pose_id = src.pose_id;
+  toMsg(src.bow_vector, dest.bow_vector);
 }
 
-BowQuery fromMsg(const pose_graph_tools_msgs::BowQuery& bow_query) {
-  BowQuery result;
-  result.robot_id = bow_query.robot_id;
-  result.pose_id = bow_query.pose_id;
-  result.bow_vector = fromMsg(bow_query.bow_vector);
-  return result;
+void fromMsg(const pose_graph_msgs::BowQuery& src, BowQuery& dest) {
+  dest.robot_id = src.robot_id;
+  dest.pose_id = src.pose_id;
+  fromMsg(src.bow_vector, dest.bow_vector);
 }
 
-pose_graph_tools_msgs::BowQueries toMsg(const BowQueries& bow_queries) {
-  pose_graph_tools_msgs::BowQueries result;
-  result.destination_robot_id = bow_queries.destination_robot_id;
-  result.queries.reserve(bow_queries.queries.size());
-  for (const auto& query : bow_queries.queries) {
-    result.queries.emplace_back(toMsg(query));
+void toMsg(const BowQueries& src, pose_graph_msgs::BowQueries& dest) {
+  dest.destination_robot_id = src.destination_robot_id;
+  dest.queries.reserve(src.queries.size());
+  for (const auto& query : src.queries) {
+    auto& dest_query = dest.queries.emplace_back();
+    toMsg(query, dest_query);
   }
-  return result;
 }
 
-BowQueries fromMsg(const pose_graph_tools_msgs::BowQueries& bow_queries) {
-  BowQueries result;
-  result.destination_robot_id = bow_queries.destination_robot_id;
-  result.queries.reserve(bow_queries.queries.size());
-  for (const auto& query : bow_queries.queries) {
-    result.queries.emplace_back(fromMsg(query));
+void fromMsg(const pose_graph_msgs::BowQueries& src, BowQueries& dest) {
+  dest.destination_robot_id = src.destination_robot_id;
+  dest.queries.reserve(src.queries.size());
+  for (const auto& query : src.queries) {
+    auto& dest_query = dest.queries.emplace_back();
+    fromMsg(query, dest_query);
   }
-  return result;
 }
 
-pose_graph_tools_msgs::PoseGraphEdge toMsg(
-    const PoseGraphEdge& pose_graph_edge) {
-  pose_graph_tools_msgs::PoseGraphEdge result;
-  result.key_from = pose_graph_edge.key_from;
-  result.key_to = pose_graph_edge.key_to;
-  result.robot_from = pose_graph_edge.robot_from;
-  result.robot_to = pose_graph_edge.robot_to;
-  result.type = static_cast<int>(pose_graph_edge.type);
-  result.header.stamp.fromNSec(pose_graph_edge.stamp_ns);
-  tf2::convert(pose_graph_edge.pose, result.pose);
+void toMsg(const PoseGraphEdge& src, pose_graph_msgs::PoseGraphEdge& dest) {
+  dest.key_from = src.key_from;
+  dest.key_to = src.key_to;
+  dest.robot_from = src.robot_from;
+  dest.robot_to = src.robot_to;
+  dest.type = static_cast<int>(src.type);
+  dest.header.stamp = rclcpp::Time(src.stamp_ns);
+  tf2::convert(src.pose, dest.pose);
 
   // Store covariance in row-major order.
   for (size_t r = 0; r < 6; ++r) {
     for (size_t c = 0; c < 6; ++c) {
-      result.covariance[r * 6 + c] = pose_graph_edge.covariance(r, c);
+      dest.covariance[r * 6 + c] = src.covariance(r, c);
     }
   }
-  return result;
 }
 
-PoseGraphEdge fromMsg(
-    const pose_graph_tools_msgs::PoseGraphEdge& pose_graph_edge) {
-  PoseGraphEdge result;
-  result.key_from = pose_graph_edge.key_from;
-  result.key_to = pose_graph_edge.key_to;
-  result.robot_from = pose_graph_edge.robot_from;
-  result.robot_to = pose_graph_edge.robot_to;
-  result.stamp_ns = pose_graph_edge.header.stamp.toNSec();
-  result.type = static_cast<PoseGraphEdge::Type>(pose_graph_edge.type);
-  tf2::convert(pose_graph_edge.pose, result.pose);
+void fromMsg(const pose_graph_msgs::PoseGraphEdge& src, PoseGraphEdge& dest) {
+  dest.key_from = src.key_from;
+  dest.key_to = src.key_to;
+  dest.robot_from = src.robot_from;
+  dest.robot_to = src.robot_to;
+  dest.stamp_ns = rclcpp::Time(src.header.stamp).nanoseconds();
+  dest.type = static_cast<PoseGraphEdge::Type>(src.type);
+  tf2::convert(src.pose, dest.pose);
 
   // Store covariance in row-major order.
   for (size_t r = 0; r < 6; ++r) {
     for (size_t c = 0; c < 6; ++c) {
-      result.covariance(r, c) = pose_graph_edge.covariance[r * 6 + c];
+      dest.covariance(r, c) = src.covariance[r * 6 + c];
     }
   }
-  return result;
 }
 
-pose_graph_tools_msgs::PoseGraphNode toMsg(
-    const PoseGraphNode& pose_graph_node) {
-  pose_graph_tools_msgs::PoseGraphNode result;
-  result.header.stamp.fromNSec(pose_graph_node.stamp_ns);
-  result.key = pose_graph_node.key;
-  result.robot_id = pose_graph_node.robot_id;
-  tf2::convert(pose_graph_node.pose, result.pose);
-
-  return result;
+void toMsg(const PoseGraphNode& src, pose_graph_msgs::PoseGraphNode& dest) {
+  dest.header.stamp = rclcpp::Time(src.stamp_ns);
+  dest.key = src.key;
+  dest.robot_id = src.robot_id;
+  tf2::convert(src.pose, dest.pose);
 }
 
-PoseGraphNode fromMsg(
-    const pose_graph_tools_msgs::PoseGraphNode& pose_graph_node) {
-  PoseGraphNode result;
-  result.stamp_ns = pose_graph_node.header.stamp.toNSec();
-  result.key = pose_graph_node.key;
-  result.robot_id = pose_graph_node.robot_id;
-  tf2::convert(pose_graph_node.pose, result.pose);
-  return result;
+void fromMsg(const pose_graph_msgs::PoseGraphNode& src, PoseGraphNode& dest) {
+  dest.stamp_ns = rclcpp::Time(src.header.stamp).nanoseconds();
+  dest.key = src.key;
+  dest.robot_id = src.robot_id;
+  tf2::convert(src.pose, dest.pose);
 }
 
-pose_graph_tools_msgs::PoseGraph toMsg(const PoseGraph& pose_graph) {
-  pose_graph_tools_msgs::PoseGraph result;
-  result.header.stamp.fromNSec(pose_graph.stamp_ns);
-  result.nodes.reserve(pose_graph.nodes.size());
-  for (const auto& node : pose_graph.nodes) {
-    result.nodes.emplace_back(toMsg(node));
+void toMsg(const PoseGraph& src, pose_graph_msgs::PoseGraph& dest) {
+  dest.header.stamp = rclcpp::Time(src.stamp_ns);
+  dest.nodes.reserve(src.nodes.size());
+  for (const auto& node : src.nodes) {
+    auto& dest_node = dest.nodes.emplace_back();
+    toMsg(node, dest_node);
   }
-  result.edges.reserve(pose_graph.edges.size());
-  for (const auto& edge : pose_graph.edges) {
-    result.edges.emplace_back(toMsg(edge));
+  dest.edges.reserve(src.edges.size());
+  for (const auto& edge : src.edges) {
+    auto& dest_edge = dest.edges.emplace_back();
+    toMsg(edge, dest_edge);
   }
-  return result;
 }
 
-PoseGraph fromMsg(const pose_graph_tools_msgs::PoseGraph& pose_graph) {
-  PoseGraph result;
-  result.stamp_ns = pose_graph.header.stamp.toNSec();
-  result.nodes.reserve(pose_graph.nodes.size());
-  for (const auto& node : pose_graph.nodes) {
-    result.nodes.emplace_back(fromMsg(node));
+void fromMsg(const pose_graph_msgs::PoseGraph& src, PoseGraph& dest) {
+  dest.stamp_ns = rclcpp::Time(src.header.stamp).nanoseconds();
+  dest.nodes.reserve(src.nodes.size());
+  for (const auto& node : src.nodes) {
+    auto& dest_node = dest.nodes.emplace_back();
+    fromMsg(node, dest_node);
   }
-  result.edges.reserve(pose_graph.edges.size());
-  for (const auto& edge : pose_graph.edges) {
-    result.edges.emplace_back(fromMsg(edge));
+  dest.edges.reserve(src.edges.size());
+  for (const auto& edge : src.edges) {
+    auto& dest_edge = dest.edges.emplace_back();
+    fromMsg(edge, dest_edge);
   }
-  return result;
 }
 
 }  // namespace pose_graph_tools
+
+namespace rclcpp {
+
+using PoseGraphAdapter = TypeAdapter<pose_graph_tools::PoseGraph,
+                                     pose_graph_tools_msgs::msg::PoseGraph>;
+
+void PoseGraphAdapter::convert_to_ros_message(const custom_type& src,
+                                              ros_message_type& dest) {
+  pose_graph_tools::toMsg(src, dest);
+}
+
+void PoseGraphAdapter::convert_to_custom(const ros_message_type& src,
+                                         custom_type& dest) {
+  pose_graph_tools::fromMsg(src, dest);
+}
+
+}  // namespace rclcpp

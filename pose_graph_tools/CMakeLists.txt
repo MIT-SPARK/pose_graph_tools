@@ -8,13 +8,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+
 find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME} src/ostream.cpp)
 target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC $<INSTALL_INTERFACE:include>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  ${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>
+                         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_library(pose_graph_tools::${PROJECT_NAME} ALIAS ${PROJECT_NAME})

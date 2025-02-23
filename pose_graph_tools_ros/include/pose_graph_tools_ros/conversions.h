@@ -1,29 +1,63 @@
 #pragma once
 
-#include <pose_graph_tools/all.h>
-#include <pose_graph_tools_msgs/BowQueries.h>
-#include <pose_graph_tools_msgs/PoseGraph.h>
+#include <type_traits>
+
+#include <pose_graph_tools/bow_queries.h>
+#include <pose_graph_tools/pose_graph.h>
+#include <pose_graph_tools_msgs/msg/bow_queries.hpp>
+#include <pose_graph_tools_msgs/msg/pose_graph.hpp>
+#include <rclcpp/publisher.hpp>
+#include <rclcpp/subscription.hpp>
+#include <rclcpp/type_adapter.hpp>
 
 namespace pose_graph_tools {
 
+namespace pose_graph_msgs = pose_graph_tools_msgs::msg;
+
 // Conversions for the pose_graph_tools C++ types to and from ROS messages.
 
-pose_graph_tools_msgs::BowVector toMsg(const BowVector& bow_vector);
-BowVector fromMsg(const pose_graph_tools_msgs::BowVector& bow_vector);
+void toMsg(const BowVector& src, pose_graph_msgs::BowVector& dest);
+void fromMsg(const pose_graph_msgs::BowVector& src, BowVector& dest);
 
-pose_graph_tools_msgs::BowQuery toMsg(const BowQuery& bow_query);
-BowQuery fromMsg(const pose_graph_tools_msgs::BowQuery& bow_query);
+void toMsg(const BowQuery& src, pose_graph_msgs::BowQuery& dest);
+void fromMsg(const pose_graph_msgs::BowQuery& src, BowQuery& dest);
 
-pose_graph_tools_msgs::BowQueries toMsg(const BowQueries& bow_queries);
-BowQueries fromMsg(const pose_graph_tools_msgs::BowQueries& bow_queries);
+void toMsg(const BowQueries& src, pose_graph_msgs::BowQueries& dest);
+void fromMsg(const pose_graph_msgs::BowQueries& src, BowQueries& dest);
 
-pose_graph_tools_msgs::PoseGraphEdge toMsg(const PoseGraphEdge& pose_graph_edge);
-PoseGraphEdge fromMsg(const pose_graph_tools_msgs::PoseGraphEdge& pose_graph_edge);
+void toMsg(const PoseGraphEdge& src, pose_graph_msgs::PoseGraphEdge& dest);
+void fromMsg(const pose_graph_msgs::PoseGraphEdge& src, PoseGraphEdge& dest);
 
-pose_graph_tools_msgs::PoseGraphNode toMsg(const PoseGraphNode& pose_graph_node);
-PoseGraphNode fromMsg(const pose_graph_tools_msgs::PoseGraphNode& pose_graph_node);
+void toMsg(const PoseGraphNode& src, pose_graph_msgs::PoseGraphNode& dest);
+void fromMsg(const pose_graph_msgs::PoseGraphNode& src, PoseGraphNode& dest);
 
-pose_graph_tools_msgs::PoseGraph toMsg(const PoseGraph& pose_graph);
-PoseGraph fromMsg(const pose_graph_tools_msgs::PoseGraph& pose_graph);
+void toMsg(const PoseGraph& src, pose_graph_msgs::PoseGraph& dest);
+void fromMsg(const pose_graph_msgs::PoseGraph& src, PoseGraph& dest);
+
+}  // namespace pose_graph_tools
+
+namespace rclcpp {
+
+template <>
+struct TypeAdapter<pose_graph_tools::PoseGraph,
+                   pose_graph_tools_msgs::msg::PoseGraph> {
+  using is_specialized = std::true_type;
+  using custom_type = pose_graph_tools::PoseGraph;
+  using ros_message_type = pose_graph_tools_msgs::msg::PoseGraph;
+
+  static void convert_to_ros_message(const custom_type& src,
+                                     ros_message_type& dest);
+  static void convert_to_custom(const ros_message_type& src, custom_type& dest);
+};
+
+}  // namespace rclcpp
+
+namespace pose_graph_tools {
+
+using PoseGraphTypeAdapter =
+    rclcpp::adapt_type<PoseGraph>::as<pose_graph_msgs::PoseGraph>;
+using PoseGraphPublisher = rclcpp::Publisher<PoseGraphTypeAdapter>::SharedPtr;
+using PoseGraphSubscription =
+    rclcpp::Subscription<PoseGraphTypeAdapter>::SharedPtr;
 
 }  // namespace pose_graph_tools

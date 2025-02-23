@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 
 # Nodes and edges
 pose_graph_tools_msgs/PoseGraphNode[] nodes
