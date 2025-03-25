@@ -1,0 +1,15 @@
+---
+launch:
+  - arg: {name: frame_id, default: map}
+  - arg: {name: graph_topic, default: graph}
+  - arg: {name: ns, default: pose_graph}
+  - node:
+      pkg: pose_graph_tools_ros
+      exec: visualizer_node
+      name: posegraph_viewer
+      namespace: $(var ns)
+      output: screen
+      param:
+        - {name: frame_id, value: $(var frame_id)}
+      remap:
+        - {from: /graph, to: $(var graph_topic)}
