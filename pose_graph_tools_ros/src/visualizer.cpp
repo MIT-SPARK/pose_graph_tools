@@ -332,7 +332,7 @@ void Visualizer::visualize() {
 
   // Rejected Loop Closures
   visualization_msgs::Marker m_rejected_lc =
-      build_rejected_lc_marker(frame_id_, loop_edges_, keyed_poses_);
+      build_rejected_lc_marker(frame_id_, rejected_loop_edges_, keyed_poses_);
   ma.markers.push_back(m_rejected_lc);
 
   // Node IDs
