@@ -19,18 +19,24 @@ find_package(rclcpp_components REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
+# Fake target that collects ament dependencies to allow for private linakge to
+# the main target
+add_library(private_deps INTERFACE)
+ament_target_dependencies(private_deps INTERFACE visualization_msgs
+                          interactive_markers tf2_eigen)
+
 add_library(${PROJECT_NAME} SHARED src/conversions.cpp src/visualizer.cpp
                                    src/utils.cpp)
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
-  PRIVATE ${visualization_msgs_INCLUDE_DIRS})
+         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 target_link_libraries(
-  ${PROJECT_NAME} PRIVATE interactive_markers::interactive_markers
-                          tf2_eigen::tf2_eigen ${visualization_msgs_LIBRARIES})
-ament_target_dependencies(${PROJECT_NAME} PUBLIC pose_graph_tools
-                          pose_graph_tools_msgs rclcpp rclcpp_components)
+  ${PROJECT_NAME}
+  PUBLIC pose_graph_tools::pose_graph_tools
+  PRIVATE private_deps)
+ament_target_dependencies(${PROJECT_NAME} PUBLIC pose_graph_tools_msgs rclcpp
+                          rclcpp_components)
 
 rclcpp_components_register_node(
   ${PROJECT_NAME} PLUGIN pose_graph_tools_ros::Visualizer EXECUTABLE

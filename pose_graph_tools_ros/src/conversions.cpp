@@ -46,11 +46,11 @@ void fromMsg(const pose_graph_msgs::BowQueries& src, BowQueries& dest) {
 }
 
 void toMsg(const PoseGraphEdge& src, pose_graph_msgs::PoseGraphEdge& dest) {
+  dest.type = static_cast<int>(src.type);
   dest.key_from = src.key_from;
   dest.key_to = src.key_to;
   dest.robot_from = src.robot_from;
   dest.robot_to = src.robot_to;
-  dest.type = static_cast<int>(src.type);
   dest.header.stamp = rclcpp::Time(src.stamp_ns);
   tf2::convert(src.pose, dest.pose);
 
@@ -63,12 +63,12 @@ void toMsg(const PoseGraphEdge& src, pose_graph_msgs::PoseGraphEdge& dest) {
 }
 
 void fromMsg(const pose_graph_msgs::PoseGraphEdge& src, PoseGraphEdge& dest) {
+  dest.type = static_cast<PoseGraphEdge::Type>(src.type);
   dest.key_from = src.key_from;
   dest.key_to = src.key_to;
   dest.robot_from = src.robot_from;
   dest.robot_to = src.robot_to;
   dest.stamp_ns = rclcpp::Time(src.header.stamp).nanoseconds();
-  dest.type = static_cast<PoseGraphEdge::Type>(src.type);
   tf2::convert(src.pose, dest.pose);
 
   // Store covariance in row-major order.
@@ -81,6 +81,7 @@ void fromMsg(const pose_graph_msgs::PoseGraphEdge& src, PoseGraphEdge& dest) {
 
 void toMsg(const PoseGraphNode& src, pose_graph_msgs::PoseGraphNode& dest) {
   dest.header.stamp = rclcpp::Time(src.stamp_ns);
+  dest.header.frame_id = src.frame_id;
   dest.key = src.key;
   dest.robot_id = src.robot_id;
   tf2::convert(src.pose, dest.pose);
@@ -88,6 +89,7 @@ void toMsg(const PoseGraphNode& src, pose_graph_msgs::PoseGraphNode& dest) {
 
 void fromMsg(const pose_graph_msgs::PoseGraphNode& src, PoseGraphNode& dest) {
   dest.stamp_ns = rclcpp::Time(src.header.stamp).nanoseconds();
+  dest.frame_id = src.header.frame_id;
   dest.key = src.key;
   dest.robot_id = src.robot_id;
   tf2::convert(src.pose, dest.pose);
@@ -95,11 +97,14 @@ void fromMsg(const pose_graph_msgs::PoseGraphNode& src, PoseGraphNode& dest) {
 
 void toMsg(const PoseGraph& src, pose_graph_msgs::PoseGraph& dest) {
   dest.header.stamp = rclcpp::Time(src.stamp_ns);
+  dest.header.frame_id = src.frame_id;
+
   dest.nodes.reserve(src.nodes.size());
   for (const auto& node : src.nodes) {
     auto& dest_node = dest.nodes.emplace_back();
     toMsg(node, dest_node);
   }
+
   dest.edges.reserve(src.edges.size());
   for (const auto& edge : src.edges) {
     auto& dest_edge = dest.edges.emplace_back();
@@ -109,11 +114,14 @@ void toMsg(const PoseGraph& src, pose_graph_msgs::PoseGraph& dest) {
 
 void fromMsg(const pose_graph_msgs::PoseGraph& src, PoseGraph& dest) {
   dest.stamp_ns = rclcpp::Time(src.header.stamp).nanoseconds();
+  dest.frame_id = src.header.frame_id;
+
   dest.nodes.reserve(src.nodes.size());
   for (const auto& node : src.nodes) {
     auto& dest_node = dest.nodes.emplace_back();
     fromMsg(node, dest_node);
   }
+
   dest.edges.reserve(src.edges.size());
   for (const auto& edge : src.edges) {
     auto& dest_edge = dest.edges.emplace_back();

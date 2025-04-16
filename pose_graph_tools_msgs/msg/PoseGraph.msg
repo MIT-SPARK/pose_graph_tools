@@ -1,3 +1,4 @@
+# Timestamp of last update and map frame ID
 std_msgs/Header header
 
 # Nodes and edges
