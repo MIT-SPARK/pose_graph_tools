@@ -281,6 +281,7 @@ void Visualizer::callback(const PoseGraph& msg) {
   odometry_edges_.clear();
   loop_edges_.clear();
   rejected_loop_edges_.clear();
+  other_edges_.clear();
   // iterate through edges in pose graph
   for (const auto& msg_edge : msg.edges) {
     Node from = std::make_pair(msg_edge.robot_from, msg_edge.key_from);
