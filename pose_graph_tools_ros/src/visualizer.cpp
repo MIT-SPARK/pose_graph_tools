@@ -293,7 +293,7 @@ void Visualizer::callback(const PoseGraph& msg) {
       loop_edges_.emplace_back(std::make_pair(from, to));
     } else if (msg_edge.type == PoseGraphEdge::REJECTED_LOOPCLOSE) {
       rejected_loop_edges_.emplace_back(std::make_pair(from, to));
-    } else {
+    } else if (msg_edge.type == PoseGraphEdge::MESH) {
       other_edges_.emplace_back(std::make_pair(from, to));
     }
   }
